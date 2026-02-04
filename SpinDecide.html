@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Spin to Decide - CoinFlip Pro</title>
+    <!-- Reusing existing project's CSS/JS for Tailwind and fonts -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1392ec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101a22",
+                    },
+                    fontFamily: {
+                        "display": ["Spline Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <link href="style.css" rel="stylesheet"/>
+    <link href="SpinDecide.css" rel="stylesheet"/> <!-- Specific styles for SpinDecide -->
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen flex flex-col">
+    <!-- Reused Header from index.html -->
+    <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-[#233948] px-10 py-3 bg-white dark:bg-[#1a262e] sticky top-0 z-50">
+        <div class="flex items-center gap-4">
+            <div class="size-8 text-primary">
+                <svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <path clip-rule="evenodd" d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z" fill="currentColor" fill-rule="evenodd"></path>
+                </svg>
+            </div>
+            <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] font-display">CoinFlip Pro</h2>
+        </div>
+        <div class="flex flex-1 justify-end gap-8">
+            <nav class="flex items-center gap-9">
+                <a id="spindecide-guide-nav-link" class="text-slate-600 dark:text-white/80 hover:text-primary dark:hover:text-white text-sm font-medium leading-normal transition-colors" href="#">SpinDecide guide</a>
+                <a class="text-slate-600 dark:text-white/80 hover:text-primary dark:hover:text-white text-sm font-medium leading-normal transition-colors" href="index.html">CoinFlip</a>
+                <a class="text-slate-600 dark:text-white/80 hover:text-primary dark:hover:text-white text-sm font-medium leading-normal transition-colors" href="#">Settings</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Layout adapted from provided HTML -->
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden max-w-[1600px] mx-auto w-full">
+        <!-- Left Area: The Spinner -->
+        <div class="flex-[3] flex flex-col items-center justify-center p-8 relative">
+            <!-- Spin Button (Above Wheel) -->
+            <div class="z-20 mb-8">
+                <button id="spin-button" class="flex min-w-[180px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-14 px-8 bg-primary text-white gap-3 text-xl font-black leading-normal tracking-widest shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all hover:-translate-y-1">
+                    <span class="material-symbols-outlined text-[32px]">play_arrow</span>
+                    <span>SPIN</span>
+                </button>
+            </div>
+            <!-- Spinner Container -->
+            <div class="relative w-full max-w-[600px] aspect-square flex items-center justify-center">
+                <!-- The Pointer -->
+                <div class="absolute -top-4 left-1/2 -translate-x-1/2 z-30 text-primary drop-shadow-md">
+                    <span class="material-symbols-outlined text-[64px] scale-y-[-1]">navigation</span>
+                </div>
+                <!-- The Wheel (Visual representation) -->
+                <div id="spinner-wheel" class="w-full h-full rounded-full border-[12px] border-white dark:border-[#233948] shadow-2xl relative overflow-hidden bg-white dark:bg-[#1a262e]">
+                    <!-- Simulated colorful segments using conic-gradient -->
+                    <div class="absolute inset-0 rounded-full">
+                    </div>
+                    <canvas id="wheel-text-canvas" class="absolute inset-0"></canvas>
+                    <!-- Inner Circle Hub -->
+                    <div class="absolute inset-[40%] bg-white dark:bg-background-dark rounded-full shadow-inner flex items-center justify-center z-10">
+                        <div class="size-6 bg-primary rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Floating Controls -->
+            <div class="flex gap-4 mt-12 bg-white/80 dark:bg-[#1a262e]/50 backdrop-blur-sm p-3 rounded-full border border-slate-200 dark:border-[#233948]">
+                <button class="p-2 hover:bg-primary/20 rounded-full transition-colors">
+                    <span class="material-symbols-outlined">volume_up</span>
+                </button>
+                <button class="p-2 hover:bg-primary/20 rounded-full transition-colors">
+                    <span class="material-symbols-outlined">fullscreen</span>
+                </button>
+                <button class="p-2 hover:bg-primary/20 rounded-full transition-colors">
+                    <span class="material-symbols-outlined">zoom_in</span>
+                </button>
+            </div>
+        </div>
+        <!-- Right Sidebar: Entries -->
+                    <aside class="flex-1 min-w-[360px] max-w-[420px] bg-white dark:bg-[#1a262e] border-l border-slate-200 dark:border-[#233948] p-6 flex flex-col gap-6">
+                        <!-- Toggle for Ratio Free Mode -->
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-bold">Ratio Free Mode</p>
+                                <p id="ratio-free-desc" class="text-xs text-slate-500">Define custom ratios for entries</p>
+                            </div>
+                            <div id="ratio-free-mode-toggle" data-toggled="false" class="w-10 h-5 bg-primary/30 rounded-full relative cursor-pointer toggle-track">
+                                <div class="absolute top-0.5 size-4 bg-white rounded-full shadow-sm toggle-switch-handle transition-all duration-300"></div>
+                            </div>
+                        </div>
+        
+                        <!-- Toggle for Entry Mode -->
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-bold">Single Entry Mode</p>
+                                <p class="text-xs text-slate-500">Add entries one by one</p>
+                            </div>
+                            <div id="single-entry-mode-toggle" data-toggled="false" class="w-10 h-5 bg-primary/30 rounded-full relative cursor-pointer toggle-track">
+                                <div class="absolute top-0.5 size-4 bg-white rounded-full shadow-sm toggle-switch-handle transition-all duration-300"></div>
+                            </div>
+                        </div>
+        
+                        <div>
+                            <h1 class="text-slate-900 dark:text-white text-xl font-bold leading-normal">Entries</h1>
+                            <p class="text-slate-500 dark:text-slate-400 text-sm font-normal">Add each entry on a new line</p>
+                        </div>
+                        
+                        <!-- Single Entry Input (initially hidden) -->
+                        <div id="single-entry-input-container" class="hidden">
+                            <input type="text" id="single-entry-input" class="w-full p-4 rounded-xl border-2 border-slate-200 dark:border-[#233948] bg-background-light dark:bg-background-dark focus:border-primary focus:ring-0 text-base font-medium" placeholder="Enter one entry">
+                        </div>
+        
+                        <div class="flex-1 flex flex-col gap-4">
+                            <div class="relative flex-1">
+                                <textarea id="entries-textarea" class="w-full h-full min-h-[400px] p-4 rounded-xl border-2 border-slate-200 dark:border-[#233948] bg-background-light dark:bg-background-dark focus:border-primary focus:ring-0 text-base font-medium resize-none transition-all" placeholder="Type entries here..."></textarea>
+                                <div id="entries-count" class="absolute bottom-4 right-4 bg-primary/20 text-primary text-xs font-bold px-2 py-1 rounded-full">
+                                    0 Entries
+                                </div>
+                                <div id="total-percentage-display" class="absolute bottom-12 right-4 bg-primary/20 text-primary text-xs font-bold px-2 py-1 rounded-full hidden">
+                                    Total: 0%
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-3">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button id="shuffle-button" class="flex items-center justify-center gap-2 rounded-full h-12 bg-slate-100 dark:bg-slate-700 text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-600 transition-all">
+                                        <span class="material-symbols-outlined text-[20px]">shuffle</span>
+                                        Shuffle
+                                    </button>
+                                    <button id="sort-button" class="flex items-center justify-center gap-2 rounded-full h-12 bg-slate-100 dark:bg-slate-700 text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-600 transition-all">
+                                        <span class="material-symbols-outlined text-[20px]">sort</span>
+                                        Sort
+                                    </button>
+                                </div>
+                                <button id="confirm-entries-button" data-action="confirm" class="flex items-center justify-center gap-2 rounded-full h-14 px-6 bg-primary text-white text-base font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                                    <span class="material-symbols-outlined">check</span>
+                                    Confirm Entries
+                                </button>
+                            </div>
+                            <!-- New Add button for Single Entry Mode -->
+                            <button id="add-single-entry-button" class="flex items-center justify-center gap-2 rounded-full h-14 bg-primary text-white text-base font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all hidden">
+                                <span class="material-symbols-outlined">add</span>
+                                + Add Entry
+                            </button>
+                        </div>
+                        <!-- Secondary Actions -->
+                        <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200 dark:border-[#233948]">
+                            <div class="flex items-center gap-3 px-3 py-2 rounded-xl bg-primary/10 cursor-pointer">
+                                <span class="material-symbols-outlined text-primary">history</span>
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-bold">History</span>
+                                    <span class="text-[10px] text-slate-500">Recent wins</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 cursor-pointer">
+                                <span class="material-symbols-outlined">settings</span>
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-bold">Settings</span>
+                                    <span class="text-[10px] text-slate-500">Wheel config</span>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>    </main>
+    <!-- Gallery / Footer Section (adapted from provided HTML) -->
+    <section class="bg-white dark:bg-[#1a262e] py-12 px-6 border-t border-slate-200 dark:border-[#233948]">
+        <div class="max-w-[1200px] mx-auto">
+            <h3 class="text-2xl font-bold mb-8 text-center text-slate-900 dark:text-white">Popular Wheels</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                <!-- Template Card -->
+                <div class="flex flex-col items-center gap-3 group cursor-pointer">
+                    <div class="w-full aspect-square rounded-2xl bg-primary/20 flex items-center justify-center overflow-hidden border-2 border-transparent group-hover:border-primary transition-all shadow-sm">
+                        <div class="w-16 h-16 rounded-full" data-alt="Small preview of colorful spinner wheel" style="background: conic-gradient(#ef4444, #3b82f6, #22c55e, #ef4444);"></div>
+                    </div>
+                    <span class="text-sm font-semibold text-slate-900 dark:text-white">Yes or No</span>
+                </div>
+                <!-- Template Card -->
+                <div class="flex flex-col items-center gap-3 group cursor-pointer">
+                    <div class="w-full aspect-square rounded-2xl bg-primary/20 flex items-center justify-center overflow-hidden border-2 border-transparent group-hover:border-primary transition-all shadow-sm">
+                        <div class="w-16 h-16 rounded-full" data-alt="Small preview of warm color spinner wheel" style="background: conic-gradient(#f4d125, #f97316, #ef4444, #f4d125);"></div>
+                    </div>
+                    <span class="text-sm font-semibold text-slate-900 dark:text-white">What to eat?</span>
+                </div>
+                <!-- Template Card -->
+                <div class="flex flex-col items-center gap-3 group cursor-pointer">
+                    <div class="w-full aspect-square rounded-2xl bg-primary/20 flex items-center justify-center overflow-hidden border-2 border-transparent group-hover:border-primary transition-all shadow-sm">
+                        <div class="w-16 h-16 rounded-full" data-alt="Small preview of purple and blue spinner wheel" style="background: conic-gradient(#a855f7, #ec4899, #3b82f6, #a855f7);"></div>
+                    </div>
+                    <span class="text-sm font-semibold text-slate-900 dark:text-white">Movies</span>
+                </div>
+                <!-- Template Card -->
+                <div class="flex flex-col items-center gap-3 group cursor-pointer">
+                    <div class="w-full aspect-square rounded-2xl bg-primary/20 flex items-center justify-center overflow-hidden border-2 border-transparent group-hover:border-primary transition-all shadow-sm">
+                        <div class="w-16 h-16 rounded-full" data-alt="Small preview of cool color spinner wheel" style="background: conic-gradient(#22c55e, #06b6d4, #3b82f6, #22c55e);"></div>
+                    </div>
+                    <span class="text-sm font-semibold text-slate-900 dark:text-white">Names</span>
+                </div>
+                <!-- More slots -->
+                <div class="flex flex-col items-center gap-3 group cursor-pointer">
+                    <div class="w-full aspect-square rounded-2xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-500">
+                        <span class="material-symbols-outlined text-slate-400 text-4xl">add</span>
+                    </div>
+                    <span class="text-sm font-semibold text-slate-900 dark:text-white">Create New</span>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- SpinDecide Guide Modal -->
+<div id="spindecide-guide-modal" class="modal-overlay hidden">
+    <div class="modal-content bg-white dark:bg-background-dark p-6 rounded-lg shadow-lg max-w-2xl w-full relative">
+        <button id="spindecide-modal-close-button" class="absolute top-4 right-4 text-slate-500 hover:text-slate-900 dark:hover:text-white material-symbols-outlined">close</button>
+        <h2 class="text-slate-900 dark:text-white tracking-tight text-3xl font-bold leading-tight font-display text-center mb-6">SpinDecide Guide</h2>
+        <div class="space-y-6">
+            <div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">How to Use SpinDecide</h3>
+                <p class="text-base text-slate-700 dark:text-slate-300">Enter your options in the text area on the right, one option per line. Click 'SPIN' to randomize your decision!</p>
+            </div>
+            <div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">Customizing Your Wheel</h3>
+                <p class="text-base text-slate-700 dark:text-slate-300">Add or remove entries, shuffle them, or sort them alphabetically to customize your decision-making wheel.</p>
+            </div>
+            <div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">What is SpinDecide for?</h3>
+                <p class="text-base text-slate-700 dark:text-slate-300">SpinDecide helps you make quick, unbiased decisions when you have multiple options. Perfect for choosing what to eat, where to go, or any other dilemma!</p>
+            </div>
+        </div>
+    </div>
+</div>
+    <!-- Spin Result Modal -->
+<div id="spin-result-modal" class="modal-overlay hidden">
+    <div class="modal-content bg-white dark:bg-background-dark p-6 rounded-lg shadow-lg max-w-sm w-full relative text-center">
+        <h2 class="text-slate-900 dark:text-white tracking-tight text-3xl font-bold leading-tight font-display mb-4">You got:</h2>
+        <p id="spin-result-text" class="text-primary text-5xl font-black mb-6 break-words"></p>
+        <button id="spin-result-close-button" class="flex min-w-[120px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-6 bg-primary text-white text-base font-bold transition-transform hover:scale-105 active:scale-95 mx-auto">
+            <span class="material-symbols-outlined mr-2">close</span>
+            <span>Close</span>
+        </button>
+    </div>
+</div>
+    <script type="module" src="SpinDecide.js"></script>
+</body>
+</html>

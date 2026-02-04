@@ -1,72 +1,55 @@
-# Coin Flip Simulator - Blueprint
+# Spin to Decide - CoinFlip Pro - Blueprint
 
 ## Overview
-
-This document outlines the development of a lightweight, SEO-optimized coin flip simulator website based on the provided Product Requirements Document (PRD). The primary goal is to create a fast, reliable, and user-friendly tool for making quick random decisions, with a monetization strategy centered around Google AdSense.
+This document outlines the Spin to Decide feature within the CoinFlip Pro project. It provides a dynamic and interactive roulette wheel for decision-making, allowing users to input custom entries, manage ratios, and spin for a random outcome.
 
 ## Style, Design, and Features
 
 ### Design Principles
-- **Minimalist & Modern:** Clean, uncluttered interface focusing on the core functionality.
-- **Fast & Responsive:** A loading speed under 1 second and a seamless experience on all devices (mobile, desktop).
-- **Intuitive UX:** The user's journey is straightforward: land on the page, click a button, and see the result instantly.
-- **Visual Feedback:** A satisfying 3D coin flip animation provides immediate and engaging feedback.
+- **Interactive & Engaging:** Provides a fun and visual way to make decisions.
+- **Customizable:** Users can define their own entries and optionally assign custom ratios.
+- **Responsive:** Adapts to various screen sizes for a consistent user experience.
 
-### Core Features (MVP)
-- **Instant Coin Flip:** A single "Flip Now" button to initiate the coin toss.
-- **3D Animation:** A visually appealing 3D rotation effect for the coin.
-- **Clear Result Display:** Prominently displayed result (Heads or Tails).
-- **SEO-Optimized Content:** The landing page includes text content based on keywords like "coin flip simulator," "heads or tails generator," etc., to attract organic traffic.
-- **AdSense Integration:** Strategically placed ad slots to maximize revenue without disrupting the user experience.
+### Core Features
+- **Spinner Wheel:** A visually appealing roulette wheel that animates a spin to a winning entry.
+- **Entry Management:**
+    - Add/remove entries via a textarea or single input field.
+    - Shuffle and sort entries.
+    - Ratio Free Mode: Allows users to assign custom percentage-based ratios to entries.
+    - Spin Logic based on ratios (or equal distribution).
+- **Result Display:** Clearly shows the winning entry after a spin.
+- **Guide Modal:** Provides instructions on how to use the SpinDecide feature.
 
 ### Technology Stack
-- **Frontend:** Next.js (for performance and SEO benefits)
-- **Styling:** Tailwind CSS (for rapid, utility-first styling)
-- **Analytics:** Google Analytics (to be integrated)
+- **Frontend:** HTML, CSS, JavaScript (Framework-less)
+- **Styling:** Tailwind CSS (via CDN), Custom CSS (`style.css`, `SpinDecide.css`)
+- **Fonts & Icons:** Google Fonts (Spline Sans), Material Symbols Outlined.
 
-#### Image Optimization Best Practices
-- **Next.js Image Component Updates:** Replaced deprecated `layout` and `objectFit` props with `fill` prop and `style={{ objectFit: 'cover' }}`.
-- **LCP Optimization:** Added `loading="eager"` to the primary (heads) image to prioritize loading for Largest Contentful Paint (LCP) elements.
-- **Responsive Sizing:** Implemented `sizes="(max-width: 768px) 100vw, 256px"` for images using the `fill` prop to provide optimal image sources based on viewport size.
-- **Removed Text Overlay from Coin Component (Current Design):** `choice1Label` and `choice2Label` display is now entirely removed from the `Coin.tsx` component. The `Coin` component solely displays the coin image, addressing the request for "no text inside the image" and a preference for no text on the coin face.
-- **Correct Coin Face Display (Simplified Visibility Control):** Reverted opacity-based visibility control. The `Coin.tsx` component strictly relies on the 3D CSS (`transform` and `backface-visibility`) for showing the correct coin face during and after a flip. `overflow-hidden` was moved from the rotating element to its direct parent to avoid potential rendering conflicts with 3D transforms.
+## Current Changes
 
-### UX 강화 기능 계획
+### Bug Fix: Entry Truncation Reset
+- **Description:** Previously, when in "Ratio Free Mode" and exceeding the `MAX_ENTRIES` limit, an alert would appear. Upon dismissing this alert, the `entriesTextarea` content would unexpectedly reset (clear) instead of truncating to the allowed number of entries. This was due to an incorrect mapping operation when re-assigning the `entriesTextarea.value` after truncation.
+- **Fix:** The logic in `SpinDecide.js`'s `entriesTextarea.addEventListener('input', ...)` was corrected. Instead of attempting to remap `truncatedEntries` (which are already raw strings) to preserve ratio information (which was causing `undefined` values), the `entriesTextarea.value` is now directly assigned `truncatedEntries.join('\n')`. This ensures that when entries exceed the limit, only the excess entries are removed, and the remaining valid entries (with their ratios) are correctly preserved and displayed.
 
-다음 기능들을 점진적으로 구현하여 사용자 경험을 강화합니다.
+### Bug Fix: Missing HTML Element ID (`ratio-free-desc`)
+- **Description:** An `Uncaught TypeError: Cannot set properties of null (setting 'textContent')` error occurred in `SpinDecide.js` because the JavaScript code attempted to modify the `textContent` of an HTML element with the ID `ratio-free-desc`, which was missing from `SpinDecide.html`.
+- **Fix:** The `id="ratio-free-desc"` attribute was added to the `<p>` tag that serves as the description for "Ratio Free Mode" in `SpinDecide.html`. This ensures the JavaScript code can correctly reference and update the element.
 
-*   **사용자 선택지 커스터마이징:**
-    *   기본 'Heads/Tails' 대신 사용자가 원하는 라벨(예: 'Yes/No', 'A/B')을 입력하고 동전 던지기 결과에 반영합니다.
-    *   `pages/index.tsx`에 라벨 입력 필드를 추가하고, `flipCoin` 로직을 수정하여 커스텀 라벨을 사용하도록 합니다.
-    *   `Coin.tsx` 컴포넌트의 이미지 표시는 Heads/Tails 고정, 결과 텍스트와 히스토리에서만 커스텀 라벨 사용.
+### Major Refactor: Roulette Wheel Canvas Rendering Engine
+- **Description:** The entire `generateWheel()` function in `SpinDecide.js` has undergone a significant refactor, replacing previous rendering methods with a new canvas-based radial layout engine. This aims to provide a robust and visually dynamic wheel by drawing slices and text directly on the canvas. The data structure for entries is now internally mapped from `{name, ratio}` to `{text, percent, scale}` for canvas rendering.
+- **Changes Implemented:**
+    - **Full `generateWheel()` Function Replacement:** The previous implementation has been entirely replaced with a new canvas-based drawing logic for both the wheel slices and text.
+    - **Data Adaptation for Canvas:** Original entries (from `getEntries()`, containing `name` and `ratio`) are mapped to an `items` array, where `entry.name` becomes `item.text` and `entry.ratio` becomes `item.percent`. A default `item.scale` of `1` is introduced for font scaling.
+    - **Canvas-based Slice Drawing:** Instead of using `conic-gradient`, the wheel slices are now drawn directly onto the canvas using `beginPath`, `moveTo`, `arc`, and `fill` methods.
+    - **New HSL Color Scheme for Slices:** The slices are now colored using a dynamic HSL color scheme (`hsl(${i * 360 / items.length},70%,55%)`) that generates distinct colors for each segment based on its index.
+    - **Visual Discrepancy with Ratio Free Mode:** *Crucially, the visual representation of the wheel now uses slice sizes directly proportional to `item.percent` (derived from `entry.ratio`). However, if "Ratio Free Mode" is used and the total percentage of entries does not sum to 100, the visual distribution on the wheel will accurately reflect these custom ratios. Previously, equal slices were drawn regardless of ratio. The spinning logic continues to respect the defined ratios for determining the winner.*
+    - **Initialization of `currentStartAngle`:** A local `let currentStartAngle = 0;` initializes the angle for drawing slices and text, effectively setting the wheel's starting point to the right (3 o'clock position) for the first segment.
+    - **Optimized Font Sizing:** Font size now scales effectively with the wheel's radius and a base size (`radius / 10`), potentially further adjusted by `item.scale`.
+    - **Enhanced Conditional Text Rotation for Readability:** The rotation logic directly translates the canvas to the center, rotates by the `mid` angle of the slice, then translates out by `textR`. A conditional `ctx.rotate(Math.PI);` is applied if the text is in the bottom semicircle (`mid > Math.PI / 2 && mid < Math.PI * 1.5`) to ensure text remains upright and readable.
+    - **Font Styling Update:** The font is set to `bold {fontSize}px Arial`.
+    - **Fill Style:** The fill style for text is `white`.
+    - **Updated Empty Wheel Background:** The `spinnerWheel.style.background` is set to `none` to allow the canvas to render the wheel when entries exist. If there are no entries, a default `conic-gradient(#1e293b, #334155)` is applied to the `spinnerWheel`.
+    - **Total Percentage Handling:** Added a fallback to equal slices if the total percentage of `items` is zero while entries exist, preventing division by zero errors.
 
-*   **최근 결과 히스토리:**
-    *   마지막 10~20번의 동전 던지기 결과를 시각적으로(아이콘 또는 텍스트) 표시합니다.
-    *   `pages/index.tsx`에 결과를 저장할 상태를 추가하고, 이를 표시할 `History.tsx` 컴포넌트를 구현합니다.
-
-*   **연속 던지기 / 배치 던지기:**
-    *   사용자가 10회, 50회, 100회 등 한 번에 여러 번 동전을 던질 수 있는 기능을 제공합니다.
-    *   `pages/index.tsx`에 배치 던지기 버튼과 로직을 추가하고, `flipCoin` 로직을 재활용하여 구현합니다。
-*   **애니메이션 업그레이드:**
-    *   동전 회전 속도에 무작위성을 추가하여 매번 다른 시각적 재미를 제공합니다.
-    *   `Coin.tsx`의 `transition` 속성 및 `transform` 값에 무작위 값을 적용합니다. (사운드 효과는 CLI 에이전트 환경의 제약으로 현재 구현 범위에서 제외합니다.)
-
-*   **통계 시각화 (차트/그래프):**
-    *   통계 섹션의 데이터를 막대 그래프 등으로 시각화하여 사용자가 결과를 직관적으로 이해할 수 있도록 돕습니다.
-
-## Plan for Current Request: Language Translation and Ad Placeholder Removal
-
-1.  **[COMPLETED]** `blueprint.md` 파일을 현재 요청에 맞춰 업데이트합니다.
-2.  **[COMPLETED]** `pages/index.tsx`에서 "Ad Placeholder" 코드를 제거합니다.
-3.  **[COMPLETED]** `pages/index.tsx`에 있는 모든 한국어 UI 텍스트를 영어로 번역합니다.
-4.  **[COMPLETED]** `components/Coin.tsx`에 있는 모든 한국어 UI 텍스트를 영어로 번역합니다.
-5.  **[COMPLETED]** `components/History.tsx`에 있는 모든 한국어 UI 텍스트를 영어로 번역합니다.
-6.  **[COMPLETED]** `components/FlipChart.tsx`에 있는 모든 한국어 UI 텍스트를 영어로 번역합니다.
-7.  **[SKIPPED]** `npm run lint -- --fix`를 실행하여 린팅 문제를 해결합니다. (Lint script not found in package.json)
-8.  **[COMPLETED]** `npm run build`를 실행하여 프로젝트가 오류 없이 빌드되는지 확인합니다.
-
-## Plan for Current Request: Remove Privacy Policy Link
-
-1.  **[COMPLETED]** `blueprint.md` 파일을 현재 요청에 맞춰 업데이트합니다.
-2.  **[COMPLETED]** `pages/index.tsx`에서 "Privacy Policy" 링크를 제거합니다.
-3.  **[COMPLETED]** `npm run build`를 실행하여 프로젝트가 오류 없이 빌드되는지 확인합니다.
+## Next Steps
+- User to verify the updated roulette wheel's appearance, including the new color scheme, font, and text layout. Pay close attention to how 'Ratio Free Mode' visually impacts the wheel slices.
