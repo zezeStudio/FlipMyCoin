@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Coin Flip Main Simulator</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1392ec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101a22",
+                    },
+                    fontFamily: {
+                        "display": ["Spline Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<link href="style.css" rel="stylesheet"/>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-[#233948] px-10 py-3 bg-white dark:bg-background-dark sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<div class="size-8 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] font-display">CoinFlip Pro</h2>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<nav class="flex items-center gap-9">
+<a id="guide-nav-link" class="text-slate-600 dark:text-white/80 hover:text-primary dark:hover:text-white text-sm font-medium leading-normal transition-colors" href="#">Guide</a>
+<a class="text-slate-600 dark:text-white/80 hover:text-primary dark:hover:text-white text-sm font-medium leading-normal transition-colors" href="#">History</a>
+<a class="text-slate-600 dark:text-white/80 hover:text-primary dark:hover:text-white text-sm font-medium leading-normal transition-colors" href="#">Settings</a>
+</nav>
+
+</div>
+</header>
+<main class="flex-1 flex flex-col max-w-[1440px] mx-auto w-full p-6 gap-6 overflow-hidden">
+    <div class="flex-1 flex flex-col md:flex-row gap-6"> <!-- New wrapper for existing horizontal layout -->
+        <!-- Left Sidebar: Session Stats -->
+<aside class="hidden xl:flex flex-col w-72 gap-6">
+<div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+<h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">Live Statistics</h3>
+<div class="space-y-4">
+<div class="flex justify-between items-end">
+<span class="text-xs font-medium text-slate-500">Total Flips</span>
+<span id="total-flips-count" class="text-xl font-bold">1,284</span>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-medium">
+<span id="heads-percentage">Heads (52%)</span>
+<span id="tails-percentage">Tails (48%)</span>
+</div>
+<div class="w-full h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden flex">
+<div id="heads-bar" class="h-full bg-primary w-[52%]"></div>
+<div id="tails-bar" class="h-full bg-amber-400 w-[48%]"></div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 pt-2">
+<div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+<p class="text-[10px] uppercase text-slate-500">Streak</p>
+<p id="current-streak" class="text-sm font-bold text-green-500">3 Heads</p>
+</div>
+<div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+<p class="text-[10px] uppercase text-slate-500">Luck Score</p>
+<p id="luck-score" class="text-sm font-bold">88/100</p>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex-1 flex flex-col">
+<h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">Recent Results</h3>
+<div id="recent-results-list" class="space-y-3 overflow-y-auto flex-1"> <!-- Adjusted height here -->
+<div class="flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-default">
+<div class="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-sm">face</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">Heads</p>
+<p class="text-[10px] text-slate-500">2 seconds ago</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-default">
+<div class="size-8 rounded-full bg-amber-400/20 flex items-center justify-center text-amber-500">
+<span class="material-symbols-outlined text-sm">pets</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">Tails</p>
+<p class="text-[10px] text-slate-500">1 min ago</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-default">
+<div class="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-sm">face</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">Heads</p>
+<p class="text-[10px] text-slate-500">5 mins ago</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-default">
+<div class="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-sm">face</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">Heads</p>
+<p class="text-[10px] text-slate-500">12 mins ago</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Center: Simulator Area -->
+<div class="flex-1 flex flex-col gap-6">
+<div class="flex flex-col items-center justify-center flex-1 bg-white dark:bg-[#1a262e] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden relative">
+<!-- Background Glow Effect -->
+<div class="absolute inset-0 opacity-20 pointer-events-none">
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary rounded-full blur-[120px]"></div>
+</div>
+<div class="z-10 text-center space-y-2 mb-8">
+<h1 class="text-slate-900 dark:text-white tracking-tight text-[42px] font-bold leading-tight font-display">Coin Flip Simulator</h1>
+<p class="text-slate-500 dark:text-slate-400 text-lg">Test your probability luck in real-time</p>
+</div>
+<!-- Interactive 3D Coin Container -->
+<div class="z-10 flex w-[300px] h-[300px] items-center justify-center p-4 coin-flipper-container">
+<div class="relative group cursor-pointer transition-transform duration-500 hover:scale-110">
+<!-- Simulated 3D Coin -->
+<div id="coin-flipper" class="coin-flipper size-96">
+    <div id="coin-heads" class="coin-face coin-heads" style="background-image: url('images/heads.png');"></div>
+    <div id="coin-tails" class="coin-face coin-tails" style="background-image: url('images/tails.png');"></div>
+</div>
+<!-- Result Indicator Overlay -->
+<div class="absolute -bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="bg-background-dark/80 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest border border-slate-700 backdrop-blur-sm">Click to Flip</span>
+</div>
+</div>
+</div>
+<p id="coin-result-text" class="text-2xl font-bold text-slate-900 dark:text-white">Flip to start!</p>
+<!-- Controls -->
+<div class="z-10 flex flex-col items-center gap-6 mt-6 pb-12">
+<div class="flex items-center gap-4">
+<button class="flex min-w-[200px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-16 px-8 bg-primary hover:bg-primary/90 text-white gap-3 text-xl font-bold transition-all shadow-lg hover:shadow-primary/40 active:scale-95">
+<span class="material-symbols-outlined text-2xl">cached</span>
+<span class="truncate">FLIP COIN</span>
+</button>
+<button class="size-16 flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined">volume_up</span>
+</button>
+</div>
+<p class="text-sm text-slate-500 mb-2">Select your prediction before flipping:</p>
+<div class="flex gap-8 text-sm font-medium text-slate-500">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input id="predict-heads-radio" checked="" class="text-primary focus:ring-primary bg-transparent border-slate-400" name="side" type="radio"/>
+<span class="group-hover:text-slate-700 dark:group-hover:text-slate-300">Predict Heads</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input id="predict-tails-radio" class="text-primary focus:ring-primary bg-transparent border-slate-400" name="side" type="radio"/>
+<span class="group-hover:text-slate-700 dark:group-hover:text-slate-300">Predict Tails</span>
+</label>
+</div>
+</div>
+
+</div>
+<div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+    <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">Coin Flip Insights</h3>
+    <div class="space-y-4">
+        <div>
+            <p class="text-sm font-bold text-slate-700 dark:text-slate-300">What is a Coin Flip Simulator?</p>
+            <p class="text-xs text-slate-600 dark:text-slate-400">A Coin Flip Simulator is a digital tool designed to mimic the random outcome of flipping a physical coin. It's often used for entertainment, demonstrating probability, or making simple decisions when a fair, unbiased choice is needed.</p>
+        </div>
+        <div>
+            <p class="text-sm font-bold text-slate-700 dark:text-slate-300">How does a random coin toss work?</p>
+            <p class="text-xs text-slate-600 dark:text-slate-400">In a physical coin toss, randomness comes from numerous unpredictable factors like the force of the flip, air resistance, and the height it's flipped. In a digital simulator, true physical randomness is difficult to replicate. Instead, it relies on a pseudo-random number generator (PRNG) which produces sequences of numbers that appear random but are actually determined by an initial "seed" value. For a simple coin flip, this usually means generating a number (e.g., between 0 and 1) and assigning "heads" if it's below 0.5 and "tails" if it's above or equal to 0.5.</p>
+        </div>
+        <div>
+            <p class="text-sm font-bold text-slate-700 dark:text-slate-300">When should you use a coin flip to decide?</p>
+            <p class="text-xs text-slate-600 dark:text-slate-400">Coin flips are best suited for making binary (two-option) decisions where both options are equally desirable or undesirable, and there's no strong preference or logical reason to choose one over the other. It's a quick, simple way to break a deadlock or introduce an element of chance into a decision-making process, especially when the stakes are low. For important decisions, more structured analysis is usually recommended.</p>
+        </div>
+        <div>
+            <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Is online coin flipping truly random?</p>
+            <p class="text-xs text-slate-600 dark:text-slate-400">Most online coin flippers use pseudo-random number generators (PRNGs), which are algorithms that produce sequences of numbers that approximate true randomness. While these numbers are statistically random enough for most applications (like games or simulations), they are not "unfortunately" random in a cryptographic sense because, given the seed, the sequence is predictable. However, for casual use and typical coin flip simulations, they are generally considered fair and unpredictable enough for human perception.</p>
+            </div>
+        </div>
+    </div>
+
+<div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+    <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">Frequently Asked Questions (FAQ)</h3>
+    <div class="space-y-4">
+        <div>
+            <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Is this coin flip truly random?</p>
+            <p class="text-xs text-slate-600 dark:text-slate-400">Our online coin flip uses a pseudo-random number generator (PRNG) to simulate randomness. While PRNGs produce sequences that appear random and are suitable for most applications, they are not "unfortunately" random in a cryptographic sense because, given the seed, the sequence is predictable. However, for everyday use and fair simulations, it's generally considered unpredictable enough.</p>
+        </div>
+        <div>
+            <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Can I use this for decisions or games?</p>
+            <p class="text-xs text-slate-600 dark:text-slate-400">Yes, this coin flip simulator is perfect for making simple binary decisions or for casual games where a fair, unbiased outcome is needed. It's a fun and quick way to settle small disputes or add an element of chance. For critical decisions, however, always consider more robust methods.</p>
+        </div>
+        <div>
+            <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Is it free to use?</p>
+            <p class="text-xs text-slate-600 dark:text-slate-400">Absolutely! This Coin Flip Simulator is completely free to use, without any hidden costs or subscriptions. Enjoy unlimited flips and insights at no charge.</p>
+        </div>
+        <div>
+            <p class="text-sm font-bold text-slate-700 dark:text-slate-300">How accurate are the statistics?</p>
+            <p class="text-xs text-slate-600 dark:text-slate-400">The statistics displayed (total flips, heads/tails percentages, streaks, luck score) are real-time and accurate reflections of your interactions with this specific simulator session. They are calculated directly from your flips within the application.</p>
+        </div>
+        <div>
+            <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Can I customize the coin?</p>
+            <p class="text-xs text-slate-600 dark:text-slate-400">Currently, the simulator features a standard coin design. While customization options like different coin skins are mentioned as a placeholder feature ("Coin Skin" in Quick Settings), they are not yet implemented. Stay tuned for future updates!</p>
+        </div>
+    </div>
+</div>
+</div>
+<!-- Right Sidebar: Last Result & Settings -->
+<aside class="hidden lg:flex flex-col w-80 gap-6">
+<div class="p-1">
+<div class="bg-cover bg-center flex flex-col rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden relative" data-alt="Abstract golden pattern representing success" style='background-image: linear-gradient(0deg, rgba(16, 26, 34, 0.9) 0%, rgba(16, 26, 34, 0) 60%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuDglE2-LlwOA60XS24euhqgpxkwdr0w-0zTSjxUJx2RQrOmO1REoC8U2qDjKEjMKkKubJuIcdS7UZ2vlyZoXeCd_FXXBL5v-k4uZjCh1tZCZCX2a6--h-wo6apJxS_Afv19P25Zf4447tYiSQka_lkk6fU6fio0MsrAnUqNAVgOv15CI20mL01e7isCluvi09DKSTnJxaspZqwmS_8LOBby44eoo1RTXV9Yri2OXlJ7CUSbUzvsAI_UYTvnYVGkgvoH0WfRvXAM2fc");'>
+<div id="winner-loser-label" class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase">WINNER</div>
+<div class="flex w-full items-end justify-between gap-4 p-6 relative z-10">
+<div class="flex flex-1 flex-col gap-1 items-center py-4"> <!-- Add items-center to center horizontally -->
+<img id="winner-coin-image" src="images/heads.png" alt="Latest Toss" class="w-[100px] h-[100px] object-contain mb-2 mx-auto">
+<p id="latest-toss-result" class="text-white tracking-light text-3xl font-bold leading-tight">Heads</p>
+<p class="text-white/70 text-sm font-medium">Latest Toss Result</p>
+</div>
+<button id="share-button" class="flex min-w-[44px] size-11 cursor-pointer items-center justify-center rounded-lg bg-primary text-white transition-transform active:scale-90">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+<h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-6">Quick Settings</h3>
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<div>
+<p class="text-sm font-bold">Fast Mode</p>
+<p class="text-xs text-slate-500">Skip animations</p>
+</div>
+<div id="fast-mode-toggle" data-toggled="false" class="w-10 h-5 bg-primary/30 rounded-full relative cursor-pointer toggle-track">
+<div class="absolute top-0.5 size-4 bg-white rounded-full shadow-sm toggle-switch-handle transition-all duration-300"></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<p class="text-sm font-bold">Autoflip</p>
+<p class="text-xs text-slate-500">Flip every 10 seconds</p>
+</div>
+<div id="autoflip-toggle" data-toggled="false" class="w-10 h-5 bg-primary/30 rounded-full relative cursor-pointer toggle-track">
+<div class="absolute top-0.5 size-4 bg-white rounded-full shadow-sm toggle-switch-handle transition-all duration-300"></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<p class="text-sm font-bold">Coin Skin</p>
+<p class="text-xs text-slate-500">24K Gold Classic</p>
+</div>
+<span class="material-symbols-outlined text-slate-400">chevron_right</span>
+</div>
+</div>
+</div>
+
+<div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+    <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">Links</h3>
+    <!-- Other links will go here -->
+</div>
+
+</aside>
+
+    </div> <!-- Closing tag of the main central content column: <div class-="flex-1 flex flex-col gap-6"> -->
+
+    
+    <!-- Feature Guide Section (new location) -->
+    
+</main>
+
+<!-- Guide Modal -->
+<div id="guide-modal" class="modal-overlay hidden">
+    <div class="modal-content bg-white dark:bg-background-dark p-6 rounded-lg shadow-lg max-w-2xl w-full relative">
+        <button id="modal-close-button" class="absolute top-4 right-4 text-slate-500 hover:text-slate-900 dark:hover:text-white material-symbols-outlined">close</button>
+        <h2 class="text-slate-900 dark:text-white tracking-tight text-3xl font-bold leading-tight font-display text-center mb-6">Feature Guide</h2>
+        <div class="space-y-6">
+            <div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">Coin Flip Simulator</h3>
+                <p class="text-base text-slate-700 dark:text-slate-300">Flip coins in real-time to test probability, make predictions, and check results. Provides a realistic coin-flipping experience with 3D animation.</p>
+            </div>
+            <div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">Live Statistics</h3>
+                <p class="text-base text-slate-700 dark:text-slate-300">Displays real-time game statistics including total flips, head/tail ratios, current streak of consecutive same outcomes, and prediction accuracy (Luck Score).</p>
+            </div>
+            <div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">Recent Results</h3>
+                <p class="text-base text-slate-700 dark:text-slate-300">Shows up to 5 of the most recent coin flip results with timestamps. Quickly see which side landed up.</p>
+            </div>
+            <div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">Latest Result & Prediction</h3>
+                <p class="text-base text-slate-700 dark:text-slate-300">Displays the result of the most recent coin flip along with whether the user's prediction was correct (WINNER) or incorrect (LOSER). Visualized with an intuitive image.</p>
+            </div>
+            <div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">Quick Settings</h3>
+                <p class="text-base text-slate-700 dark:text-slate-300">
+                    <strong>Fast Mode:</strong> Skips animations and shows coin flip results instantly.<br>
+                    <strong>Autoflip:</strong> Automatically flips the coin every 10 seconds.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="module" src="main.js"></script>
+</body></html>
