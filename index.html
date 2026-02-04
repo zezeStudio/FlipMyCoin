@@ -63,69 +63,33 @@
 <div class="space-y-4">
 <div class="flex justify-between items-end">
 <span class="text-xs font-medium text-slate-500">Total Flips</span>
-<span id="total-flips-count" class="text-xl font-bold">1,284</span>
+<span id="total-flips-count" class="text-xl font-bold"></span>
 </div>
 <div class="space-y-2">
 <div class="flex justify-between text-xs font-medium">
-<span id="heads-percentage">Heads (52%)</span>
-<span id="tails-percentage">Tails (48%)</span>
+<span id="heads-percentage"></span>
+<span id="tails-percentage"></span>
 </div>
 <div class="w-full h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden flex">
-<div id="heads-bar" class="h-full bg-primary w-[52%]"></div>
-<div id="tails-bar" class="h-full bg-amber-400 w-[48%]"></div>
+<div id="heads-bar" class="h-full bg-primary w-[0%]"></div>
+<div id="tails-bar" class="h-full bg-amber-400 w-[0%]"></div>
 </div>
 </div>
 <div class="grid grid-cols-2 gap-4 pt-2">
 <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
 <p class="text-[10px] uppercase text-slate-500">Streak</p>
-<p id="current-streak" class="text-sm font-bold text-green-500">3 Heads</p>
+<p id="current-streak" class="text-sm font-bold text-green-500"></p>
 </div>
-<div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+<div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg" title="Luck Score: This score indicates how accurately you predicted the outcome of the coin toss (Heads or Tails). Your score increases with correct predictions and decreases with incorrect ones. Use this score to track your prediction ability.">
 <p class="text-[10px] uppercase text-slate-500">Luck Score</p>
-<p id="luck-score" class="text-sm font-bold">88/100</p>
+<p id="luck-score" class="text-sm font-bold"></p>
 </div>
 </div>
 </div>
 </div>
 <div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex-1 flex flex-col">
 <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">Recent Results</h3>
-<div id="recent-results-list" class="space-y-3 overflow-y-auto flex-1"> <!-- Adjusted height here -->
-<div class="flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-default">
-<div class="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-<span class="material-symbols-outlined text-sm">face</span>
-</div>
-<div class="flex-1">
-<p class="text-sm font-bold">Heads</p>
-<p class="text-[10px] text-slate-500">2 seconds ago</p>
-</div>
-</div>
-<div class="flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-default">
-<div class="size-8 rounded-full bg-amber-400/20 flex items-center justify-center text-amber-500">
-<span class="material-symbols-outlined text-sm">pets</span>
-</div>
-<div class="flex-1">
-<p class="text-sm font-bold">Tails</p>
-<p class="text-[10px] text-slate-500">1 min ago</p>
-</div>
-</div>
-<div class="flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-default">
-<div class="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-<span class="material-symbols-outlined text-sm">face</span>
-</div>
-<div class="flex-1">
-<p class="text-sm font-bold">Heads</p>
-<p class="text-[10px] text-slate-500">5 mins ago</p>
-</div>
-</div>
-<div class="flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-default">
-<div class="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-<span class="material-symbols-outlined text-sm">face</span>
-</div>
-<div class="flex-1">
-<p class="text-sm font-bold">Heads</p>
-<p class="text-[10px] text-slate-500">12 mins ago</p>
-</div>
-</div>
+<div id="recent-results-list" class="space-y-3 overflow-y-auto flex-1">
 </div>
 </div>
 </aside>
@@ -158,13 +122,11 @@
 <!-- Controls -->
 <div class="z-10 flex flex-col items-center gap-6 mt-6 pb-12">
 <div class="flex items-center gap-4">
-<button class="flex min-w-[200px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-16 px-8 bg-primary hover:bg-primary/90 text-white gap-3 text-xl font-bold transition-all shadow-lg hover:shadow-primary/40 active:scale-95">
+<button id="flip-coin-button" class="flex min-w-[200px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-16 px-8 bg-primary hover:bg-primary/90 text-white gap-3 text-xl font-bold transition-all shadow-lg hover:shadow-primary/40 active:scale-95">
 <span class="material-symbols-outlined text-2xl">cached</span>
 <span class="truncate">FLIP COIN</span>
 </button>
-<button class="size-16 flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300">
-<span class="material-symbols-outlined">volume_up</span>
-</button>
+
 </div>
 <p class="text-sm text-slate-500 mb-2">Select your prediction before flipping:</p>
 <div class="flex gap-8 text-sm font-medium text-slate-500">
@@ -211,7 +173,8 @@
         </div>
         <div>
             <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Can I use this for decisions or games?</p>
-            <p class="text-xs text-slate-600 dark:text-slate-400">Yes, this coin flip simulator is perfect for making simple binary decisions or for casual games where a fair, unbiased outcome is needed. It's a fun and quick way to settle small disputes or add an element of chance. For critical decisions, however, always consider more robust methods.</p>
+            <p class="text-xs text-slate-600 dark:text-slate-400">Yes, this coin flip simulator is perfect for making simple binary decisions or for casual games where a fair, unbiased outcome is needed. It's a fun and quick way to settle small disputes or add an
+            element of chance. For critical decisions, however, always consider more robust methods.</p>
         </div>
         <div>
             <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Is it free to use?</p>
@@ -232,14 +195,13 @@
 <aside class="hidden lg:flex flex-col w-80 gap-6">
 <div class="p-1">
 <div class="bg-cover bg-center flex flex-col rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden relative" data-alt="Abstract golden pattern representing success" style='background-image: linear-gradient(0deg, rgba(16, 26, 34, 0.9) 0%, rgba(16, 26, 34, 0) 60%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuDglE2-LlwOA60XS24euhqgpxkwdr0w-0zTSjxUJx2RQrOmO1REoC8U2qDjKEjMKkKubJuIcdS7UZ2vlyZoXeCd_FXXBL5v-k4uZjCh1tZCZCX2a6--h-wo6apJxS_Afv19P25Zf4447tYiSQka_lkk6fU6fio0MsrAnUqNAVgOv15CI20mL01e7isCluvi09DKSTnJxaspZqwmS_8LOBby44eoo1RTXV9Yri2OXlJ7CUSbUzvsAI_UYTvnYVGkgvoH0WfRvXAM2fc");'>
-<div id="winner-loser-label" class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase">WINNER</div>
-<div class="flex w-full items-end justify-between gap-4 p-6 relative z-10">
+<div id="winner-loser-label" class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase hidden">WINNER</div>
+<div id="winner-area-display" class="flex w-full items-end justify-between gap-4 p-6 relative z-10 hidden">
 <div class="flex flex-1 flex-col gap-1 items-center py-4"> <!-- Add items-center to center horizontally -->
-<img id="winner-coin-image" src="images/heads.png" alt="Latest Toss" class="w-[100px] h-[100px] object-contain mb-2 mx-auto">
-<p id="latest-toss-result" class="text-white tracking-light text-3xl font-bold leading-tight">Heads</p>
-<p class="text-white/70 text-sm font-medium">Latest Toss Result</p>
+<img id="winner-coin-image" src="" alt="Latest Toss" class="w-[100px] h-[100px] object-contain mb-2 mx-auto hidden">
+<p id="latest-toss-result" class="text-white tracking-light text-3xl font-bold leading-tight hidden"></p>
 </div>
-<button id="share-button" class="flex min-w-[44px] size-11 cursor-pointer items-center justify-center rounded-lg bg-primary text-white transition-transform active:scale-90">
+<button id="share-button" class="flex min-w-[44px] size-11 cursor-pointer items-center justify-center rounded-lg bg-primary text-white transition-transform active:scale-90 hidden">
 <span class="material-symbols-outlined">share</span>
 </button>
 </div>
@@ -271,7 +233,7 @@
 <p class="text-sm font-bold">Coin Skin</p>
 <p class="text-xs text-slate-500">24K Gold Classic</p>
 </div>
-<span class="material-symbols-outlined text-slate-400">chevron_right</span>
+<span class="material-symbols-outlined">chevron_right</span>
 </div>
 </div>
 </div>
