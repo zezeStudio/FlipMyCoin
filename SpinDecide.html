@@ -5,6 +5,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Spin to Decide - Customizable Roulette Wheel | CoinFlip Pro</title>
     <meta name="description" content="A free and customizable online roulette wheel. Spin the wheel to make random decisions for games, food choices, team selections, and more. Fair, transparent, and easy to use."/>
+    <link rel="icon" type="image/png" href="images/favicon.png"/>
     <!-- Reusing existing project's CSS/JS for Tailwind and fonts -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
@@ -182,14 +183,10 @@
                                     <span class="text-[10px] text-slate-500">Recent wins</span>
                                 </div>
                             </div>
-                            <div id="reset-entries-button" class="flex items-center gap-3 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 cursor-pointer">
-                                <span class="material-symbols-outlined">refresh</span>
-                                <div class="flex flex-col">
-                                    <span class="text-xs font-bold">Reset Entries</span>
-                                    <span class="text-[10px] text-slate-500">Clear all inputs</span>
-                                </div>
+                            <div id="reset-entries-button" class="flex items-center justify-center gap-2 rounded-full h-10 px-4 bg-red-500/10 text-red-500 text-xs font-bold hover:bg-red-500/20 transition-all">
+                                <span class="material-symbols-outlined text-[16px]">delete</span>
+                                Reset Current Stats
                             </div>
-
                         </div>
                     </aside>    </main>
 
