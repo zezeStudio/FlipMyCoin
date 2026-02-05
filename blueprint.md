@@ -19,6 +19,10 @@ This document outlines the Spin to Decide feature within the CoinFlip Pro projec
     - Spin Logic based on ratios (or equal distribution).
 - **Result Display:** Clearly shows the winning entry after a spin.
 - **Guide Modal:** Provides instructions on how to use the SpinDecide feature.
+- **Spin History and Statistics:** Track spin history and display statistics for different sets of entries.
+- **Reset Entries Button**: Provides a quick way to clear all current entries from the text area and reset the wheel.
+- **Introductory Text**: A descriptive English text providing an overview and purpose of the tool, correctly placed after the `<header>` tag.
+- **Usage Scenarios Section**: A dedicated section detailing various applications and use cases of the Spin to Decide tool, located at the bottom of the `<body>` element.
 
 ### Technology Stack
 - **Frontend:** HTML, CSS, JavaScript (Framework-less)
@@ -77,91 +81,21 @@ This document outlines the Spin to Decide feature within the CoinFlip Pro projec
     - **Event Listeners:** Event listeners for fullscreen and zoom buttons have been removed.
     - **CSS Styling:** Dedicated CSS rules for fullscreen and zoom features have been removed.
 
+### History and Statistics System
+- **Description:** A comprehensive system for tracking spin history and displaying statistics per unique set of input entries has been implemented. This includes storing data in `localStorage`, populating a dropdown for history navigation, and displaying win counts and percentages for selected sets.
+- **Key Changes:**
+    - **`rouletteHistory` Variable:** A global `rouletteHistory = {};` object is used to store historical data.
+    - **`getSetKey(items)` Function:** Generates a unique key for each set of entries based on sorted item names, ensuring consistency.
+    - **`populateHistoryDropdown()` Function:** Populates the dropdown in the history modal with available historical sets.
+    - **`displayStatsForKey(key)` Function:** Renders the total spins, individual item win counts, and win percentages for a given history key.
+    - **`resetSelectedStats()` Function:** Allows users to clear the statistics for a selected historical set.
+    - **Integration with `spinWheel()`:** The `spinWheel` function now updates `rouletteHistory` and `localStorage` after each spin.
+    - **HTML Updates:** `SpinDecide.html` includes a new history button and a history modal with a dropdown, stats display areas, and a reset button.
+
 ## Artifact Trail
-- **`SpinDecide.html`:** Volume button, fullscreen button, zoom button, the entire "Floating Controls" div, and the entire magnified segment modal HTML structure removed.
-- ****`SpinDecide.js`**: `lastWinningEntry` global variable, `toggleFullScreen()` function, `toggleZoom()` function, `drawMagnifiedSegment()` function, and all related DOM element declarations and event listeners for fullscreen and zoom removed.**
+- **`SpinDecide.html`:** Volume button, fullscreen button, zoom button, the entire "Floating Controls" div, and the entire magnified segment modal HTML structure removed. New history button (`id="history-button"`) and history modal (`id="history-modal"`) with dropdown and stats display areas added. **The entire "Popular Wheels" section has been removed.** A new `reset-entries-button` has been added in the Secondary Actions section. An introductory text `div` (in English) has been added after the `</header>` tag. A "Usage Scenarios" `<section>` (in English) has been added at the bottom of the `<body>` element.
+- ****`SpinDecide.js`**: `lastWinningEntry` global variable, `toggleFullScreen()` function, `toggleZoom()` function, `drawMagnifiedSegment()` function, and all related DOM element declarations and event listeners for fullscreen and zoom removed. Added `rouletteHistory` variable, `getSetKey`, `populateHistoryDropdown`, `displayStatsForKey`, `resetSelectedStats` functions. Modified `spinWheel` to update `rouletteHistory`. Added `historyButton` event listener, `historyDropdown` change listener, and `statsResetButton` click listener. Removed `updateStatsUI` call from `syncTextareaWithWheelItems`. **All "Popular Wheels" related JavaScript code (DOM variable declarations, `popularWheels` data, `loadPresetWheel` function, and associated event listeners) has been removed.** Declared `resetEntriesButton` DOM element, implemented `resetEntries()` function, and added event listener for `resetEntriesButton`.
 - **`SpinDecide.css`:** All CSS rules related to `.zoomed` and the magnified segment modal (`#magnified-segment-modal`, `#magnified-segment-content`, `#magnified-segment-canvas`, `.close-button` within the modal) removed.
 
 ## Next Steps
-- **Completed.** The fullscreen and zoom features have been successfully removed and the application is stable.
-
-    <task_state>
-        <step>
-            [DONE] `SpinDecide.js`의 구문 오류 수정.
-        </step>
-        <step>
-            [DONE] `SpinDecide.js`에 `renderSingleEntryList()` 및 `deleteSingleEntry(index)` 함수 구현.
-        </step>
-        <step>
-            [DONE] `SpinDecide.js`의 `toggleSingleEntryMode()`, `syncTextareaWithWheelItems()`, `updateEntriesCount()` 및 `DOMContentLoaded` 초기 설정 블록을 수정하여 새로운 삭제 기능 및 업데이트된 버튼 동작에 대한 가시성, 상태 및 렌더링을 올바르게 관리.
-        </step>
-        <step>
-            [DONE] 삭제 아이콘 폰트 크기 `text-lg`를 `text-sm`으로 변경하여 글자 크기에 맞게 조절.
-        </step>
-        <step>
-            [DONE] `renderSingleEntryList` 함수 수정: 개별 항목을 더 작은 텍스트, 압축된 알약 모양, 가로 줄 바꿈으로 표시하고, `singleEntryListContainer`의 충돌 클래스를 제거하여 올바른 flex-wrap 동작 보장.
-        </step>
-        <step>
-            [DONE] 애플리케이션을 테스트하여 모든 기능이 예상대로 작동하는지 확인 (이전 작업).
-        </step>
-        <step>
-            [DONE] `Ratio Free Mode` 상단에 룰렛 출력값을 보여주는 영역 추가 및 JS 로직 구현.
-        </step>
-        <step>
-            [DONE] `SpinDecide.html`에 `spin-result-display-area` 추가.
-        </step>
-        <step>
-            [DONE] `SpinDecide.js`에 `spinResultDisplayArea` DOM 요소 선언.
-        </step>
-        <step>
-            [DONE] `SpinDecide.js`의 `spinWheel()` 함수에 스핀 결과 표시 로직 추가 (중복 제거 포함).
-        </step>
-        <step>
-            [DONE] `SpinDecide.js`의 `resetConfirmButtonState()` 함수 내 중복된 `spinResultDisplayArea` 초기화 로직 수정.
-        </step>
-        <step>
-            [DONE] `SpinDecide.html`에서 `entries-textarea`의 높이를 `h-[300px]`로 설정하여 모든 모드에서 일관성을 유지했습니다.
-        </step>
-        <step>
-            [DONE] `SpinDecide.html`에서 "Ratio Free Mode" 텍스트의 들여쓰기 및 정렬을 `text-left` 클래스를 사용하여 수정했습니다.
-        </step>
-        <step>
-            [DONE] `SpinDecide.js`의 `spinWheel()` 함수를 수정하여 당첨 항목이 "6" 또는 "9"일 때 결과 모달 및 표시 영역에 밑줄(`<u>`)을 추가했습니다.
-        </step>
-        <step>
-            [DONE] `SpinDecide.js`의 `generateWheel()` 함수를 수정하여 룰렛 휠 캔버스에 그려지는 텍스트 "6" 또는 "9" 아래에 밑줄을 수동으로 그렸습니다.
-        </step>
-        <step>
-            [DONE] HTML Modification: Add Magnified Segment Modal Structure.
-        </step>
-        <step>
-            [DONE] JavaScript Modification: Declare New DOM Elements for the magnified segment modal.
-        </step>
-        <step>
-            [DONE] JavaScript Modification: Update toggleZoom() Function to open the new modal and call drawMagnifiedSegment().
-        </step>
-        <step>
-            [DONE] JavaScript Modification: Store winningEntry from spinWheel() in a global variable.
-        </step>
-        <step>
-            [DONE] JavaScript Modification: Create `drawMagnifiedSegment()` Function to render the magnified 12 o'clock segment.
-        </step>
-        <step>
-            [DONE] JavaScript Modification: Add Event Listeners for closing the new modal.
-        </step>
-        <step>
-            [DONE] CSS Modification: Style New Modal (overlay, content box).
-        </step>
-        <step>
-            [DONE] CSS Modification: Adjust Wheel Text Canvas margin to compensate for border.
-        </step>
-        <step>
-            [DONE] Bug Fix: Magnified segment modal content not appearing due to missing HTML structure for `#magnified-segment-content`. The canvas and close button are now correctly wrapped inside a `div` with `id="magnified-segment-content"`.
-        </step>
-        <step>
-            [DONE] JavaScript Modification: Removed global declarations for magnified segment modal elements and moved their retrieval and event listener attachment inside the `toggleZoom` function to ensure correct referencing and address potential timing issues.
-        </step>
-        <step>
-            [DONE] Removed fullscreen and zoom features from `SpinDecide.html`, `SpinDecide.js`, and `SpinDecide.css` as requested.
-        </step>
-    </task_state>
+- **All tasks completed.** The SpinDecide application has been fully implemented with custom entries, ratio support, a canvas-based rendering engine, history and statistics tracking, and a reset entries button. All requested features have been integrated, and the application is stable.

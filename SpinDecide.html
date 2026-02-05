@@ -54,6 +54,13 @@
         </div>
     </header>
 
+    <div class="max-w-[1600px] mx-auto w-full px-6 pt-8 pb-4 text-center">
+        <p class="text-lg text-slate-700 dark:text-slate-300 font-medium">
+            This roulette tool is a free online random selector designed to help make fair decisions in various situations requiring random selection.<br>
+            It can be freely used for various purposes such as food choices, team assignments, event draws, and learning activities.
+        </p>
+    </div>
+
     <!-- Main Layout adapted from provided HTML -->
     <main class="flex-1 flex flex-col md:flex-row overflow-hidden max-w-[1600px] mx-auto w-full">
         <!-- Left Area: The Spinner -->
@@ -169,58 +176,17 @@
                                     <span class="text-[10px] text-slate-500">Recent wins</span>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-3 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 cursor-pointer">
-                                <span class="material-symbols-outlined">settings</span>
+                            <div id="reset-entries-button" class="flex items-center gap-3 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 cursor-pointer">
+                                <span class="material-symbols-outlined">refresh</span>
                                 <div class="flex flex-col">
-                                    <span class="text-xs font-bold">Settings</span>
-                                    <span class="text-[10px] text-slate-500">Wheel config</span>
+                                    <span class="text-xs font-bold">Reset Entries</span>
+                                    <span class="text-[10px] text-slate-500">Clear all inputs</span>
                                 </div>
                             </div>
+
                         </div>
                     </aside>    </main>
-    <!-- Gallery / Footer Section (adapted from provided HTML) -->
-    <section class="bg-white dark:bg-[#1a262e] py-12 px-6 border-t border-slate-200 dark:border-[#233948]">
-        <div class="max-w-[1200px] mx-auto">
-            <h3 class="text-2xl font-bold mb-8 text-center text-slate-900 dark:text-white">Popular Wheels</h3>
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                <!-- Template Card -->
-                <div class="flex flex-col items-center gap-3 group cursor-pointer">
-                    <div class="w-full aspect-square rounded-2xl bg-primary/20 flex items-center justify-center overflow-hidden border-2 border-transparent group-hover:border-primary transition-all shadow-sm">
-                        <div class="w-16 h-16 rounded-full" data-alt="Small preview of colorful spinner wheel" style="background: conic-gradient(#ef4444, #3b82f6, #22c55e, #ef4444);"></div>
-                    </div>
-                    <span class="text-sm font-semibold text-slate-900 dark:text-white">Yes or No</span>
-                </div>
-                <!-- Template Card -->
-                <div class="flex flex-col items-center gap-3 group cursor-pointer">
-                    <div class="w-full aspect-square rounded-2xl bg-primary/20 flex items-center justify-center overflow-hidden border-2 border-transparent group-hover:border-primary transition-all shadow-sm">
-                        <div class="w-16 h-16 rounded-full" data-alt="Small preview of warm color spinner wheel" style="background: conic-gradient(#f4d125, #f97316, #ef4444, #f4d125);"></div>
-                    </div>
-                    <span class="text-sm font-semibold text-slate-900 dark:text-white">What to eat?</span>
-                </div>
-                <!-- Template Card -->
-                <div class="flex flex-col items-center gap-3 group cursor-pointer">
-                    <div class="w-full aspect-square rounded-2xl bg-primary/20 flex items-center justify-center overflow-hidden border-2 border-transparent group-hover:border-primary transition-all shadow-sm">
-                        <div class="w-16 h-16 rounded-full" data-alt="Small preview of purple and blue spinner wheel" style="background: conic-gradient(#a855f7, #ec4899, #3b82f6, #a855f7);"></div>
-                    </div>
-                    <span class="text-sm font-semibold text-slate-900 dark:text-white">Movies</span>
-                </div>
-                <!-- Template Card -->
-                <div class="flex flex-col items-center gap-3 group cursor-pointer">
-                    <div class="w-full aspect-square rounded-2xl bg-primary/20 flex items-center justify-center overflow-hidden border-2 border-transparent group-hover:border-primary transition-all shadow-sm">
-                        <div class="w-16 h-16 rounded-full" data-alt="Small preview of cool color spinner wheel" style="background: conic-gradient(#22c55e, #06b6d4, #3b82f6, #22c55e);"></div>
-                    </div>
-                    <span class="text-sm font-semibold text-slate-900 dark:text-white">Names</span>
-                </div>
-                <!-- More slots -->
-                <div class="flex flex-col items-center gap-3 group cursor-pointer">
-                    <div class="w-full aspect-square rounded-2xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-500">
-                        <span class="material-symbols-outlined text-slate-400 text-4xl">add</span>
-                    </div>
-                    <span class="text-sm font-semibold text-slate-900 dark:text-white">Create New</span>
-                </div>
-            </div>
-        </div>
-    </section>
+
     <!-- SpinDecide Guide Modal -->
 <div id="spindecide-guide-modal" class="modal-overlay hidden">
     <div class="modal-content bg-white dark:bg-background-dark p-6 rounded-lg shadow-lg max-w-2xl w-full relative">
@@ -261,6 +227,14 @@
         <h2 class="text-slate-900 dark:text-white tracking-tight text-2xl font-bold font-display text-center mb-2">History & Statistics</h2>
         <p class="text-center text-slate-500 text-sm mb-6">Statistics for the current set of entries.</p>
         
+        <!-- History Dropdown -->
+        <div class="mb-4">
+            <label for="history-dropdown" class="block text-xs font-medium text-slate-400 mb-1">Select a Set to View History</label>
+            <select id="history-dropdown" class="w-full p-2 rounded-md border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-700 focus:border-primary focus:ring-primary text-sm">
+                <!-- Options will be populated by JS -->
+            </select>
+        </div>
+
         <div id="stats-content" class="space-y-4">
             <!-- Total spins will be injected here -->
             <div class="text-center">
@@ -283,6 +257,38 @@
         </div>
     </div>
 </div>
+    <section class="max-w-[1600px] mx-auto w-full px-6 py-8">
+        <h3 class="text-2xl font-bold mb-4 text-center text-slate-900 dark:text-white">Where can it be used?</h3>
+        <p class="text-lg text-slate-700 dark:text-slate-300 font-medium text-center mb-8">
+            This tool is designed to easily and enjoyably resolve moments of difficult choices in daily life. Anyone, from individual users to schools, groups, and event organizers, can utilize it.
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h4 class="text-xl font-bold text-primary mb-2">Choosing a lunch menu</h4>
+                <p class="text-base text-slate-700 dark:text-slate-300">Struggling with what to eat for lunch? Let the wheel decide for you!</p>
+            </div>
+            <div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h4 class="text-xl font-bold text-primary mb-2">Dividing teams</h4>
+                <p class="text-base text-slate-700 dark:text-slate-300">Fairly split groups for games, projects, or any activity.</p>
+            </div>
+            <div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h4 class="text-xl font-bold text-primary mb-2">Prize draws</h4>
+                <p class="text-base text-slate-700 dark:text-slate-300">Conduct unbiased raffles and giveaways with ease.</p>
+            </div>
+            <div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h4 class="text-xl font-bold text-primary mb-2">Deciding on penalties/forfeits</h4>
+                <p class="text-base text-slate-700 dark:text-slate-300">Add a fun twist to games by randomly selecting consequences.</p>
+            </div>
+            <div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h4 class="text-xl font-bold text-primary mb-2">Deciding study order</h4>
+                <p class="text-base text-slate-700 dark:text-slate-300">Randomize your study topics or tasks for a fresh approach.</p>
+            </div>
+            <div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h4 class="text-xl font-bold text-primary mb-2">Game events</h4>
+                <p class="text-base text-slate-700 dark:text-slate-300">Integrate random selections into your game nights or online events.</p>
+            </div>
+        </div>
+    </section>
     <script type="module" src="SpinDecide.js"></script>
 </body>
 </html>

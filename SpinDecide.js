@@ -39,9 +39,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const historyButton = document.getElementById('history-button');
     const historyModal = document.getElementById('history-modal');
     const historyModalCloseButton = document.getElementById('history-modal-close-button');
+    const historyDropdown = document.getElementById('history-dropdown');
     const statsTotalSpins = document.getElementById('stats-total-spins');
     const statsList = document.getElementById('stats-list');
     const statsResetButton = document.getElementById('stats-reset-button');
+    const resetEntriesButton = document.getElementById('reset-entries-button');
+    
     
 
     // --- Configuration ---
@@ -65,6 +68,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRotation = 0; // To keep track of the wheel's current rotation for smooth transitions
     let isConfirmed = false; // New state variable for entry confirmation
 
+
+
     // --- History & Statistics Functions ---
     function getSetKey(items) {
         if (!items || items.length === 0) {
@@ -76,24 +81,42 @@ document.addEventListener('DOMContentLoaded', () => {
             .join('|');
     }
 
-    function updateStatsUI() {
-        const validEntries = getValidWheelEntries();
-        const key = getSetKey(validEntries);
-        const stats = rouletteHistory[key];
+    function populateHistoryDropdown() {
+        const historyKeys = Object.keys(rouletteHistory);
+        historyDropdown.innerHTML = ''; // Clear previous options
 
-        if (!stats || stats.total === 0) {
+        if (historyKeys.length === 0) {
+            const option = document.createElement('option');
+            option.textContent = 'No history available';
+            option.disabled = true;
+            historyDropdown.appendChild(option);
+            return;
+        }
+
+        historyKeys.forEach(key => {
+            const option = document.createElement('option');
+            option.value = key;
+            option.textContent = key.split('|').join(', ');
+            historyDropdown.appendChild(option);
+        });
+    }
+
+    function displayStatsForKey(key) {
+        const stats = rouletteHistory[key];
+        const items = key ? key.split('|') : [];
+
+        if (!stats || stats.total === 0 || items.length === 0) {
             statsTotalSpins.textContent = '0';
-            statsList.innerHTML = `<p class="text-center text-slate-500 p-4">No spins recorded for this set of entries yet.</p>`;
+            statsList.innerHTML = `<p class="text-center text-slate-500 p-4">No spins recorded for this set.</p>`;
             return;
         }
 
         statsTotalSpins.textContent = stats.total;
         
-        // Sort entries by win count, descending
-        const sortedEntries = validEntries
-            .map(entry => ({
-                name: entry.name,
-                count: stats.results[entry.name] || 0
+        const sortedEntries = items
+            .map(name => ({
+                name: name,
+                count: stats.results[name] || 0
             }))
             .sort((a, b) => b.count - a.count);
 
@@ -109,26 +132,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('');
     }
 
-    function resetCurrentStats() {
-        const key = getSetKey(getValidWheelEntries());
-        if (rouletteHistory[key]) {
-            delete rouletteHistory[key];
-            localStorage.setItem('rouletteHistory', JSON.stringify(rouletteHistory));
-            updateStatsUI();
-            alert('Statistics for the current set of entries have been reset.');
+    function resetSelectedStats() {
+        const key = historyDropdown.value;
+        if (key && rouletteHistory[key]) {
+            if (confirm(`Are you sure you want to reset the history for the set: "${key.split('|').join(', ')}"?`)) {
+                delete rouletteHistory[key];
+                localStorage.setItem('rouletteHistory', JSON.stringify(rouletteHistory));
+                
+                populateHistoryDropdown(); // Repopulate dropdown after deletion
+                const newKey = historyDropdown.value; // Get new selected key (e.g., first one or default)
+                displayStatsForKey(newKey);
+            }
         } else {
-            alert('There are no statistics to reset for the current entries.');
+            alert('No history selected to reset.');
+        }
+    }
+
+    function resetEntries() {
+        if (confirm('Are you sure you want to clear all entries?')) {
+            entriesTextarea.value = '';
+            wheelItems = [];
+            resetConfirmButtonState();
+            syncTextareaWithWheelItems();
         }
     }
 
 
     // --- Helper Functions ---
     function parseTextareaToWheelItems(textareaValue) {
-        const rawLines = textareaValue.split('\n'); // DO NOT TRIM YET
+        const rawLines = textareaValue.split('\n');
         const isRatioFreeMode = ratioFreeModeToggle.dataset.toggled === 'true';
 
-        return rawLines.map(line => { // Use 'line' for original input
-            const trimmedLine = line.trim(); // Trim for internal parsing
+        return rawLines.map(line => {
+            const trimmedLine = line.trim();
             let name = trimmedLine;
             let ratio = 1;
 
@@ -140,45 +176,38 @@ document.addEventListener('DOMContentLoaded', () => {
                     const parsedRatio = parseInt(parts[1].trim(), 10);
                     if (!isNaN(parsedRatio) && parsedRatio >= 0 && parsedRatio <= 100) {
                         ratio = parsedRatio;
-                        explicitRatio = true; // Ratio was explicitly provided and valid
+                        explicitRatio = true;
                     } else {
-                        ratio = 1; // Invalid ratio specified, default to 1 for calculation
-                        explicitRatio = true; // User tried to input a ratio, even if invalid
+                        ratio = 1;
+                        explicitRatio = true;
                         console.warn(`Invalid percentage for entry "${trimmedLine}". Defaulting to 1 for calculation.`);
                     }
                 } else {
-                    ratio = 1; // No ratio specified, default to 1
-                    // explicitRatio remains false
+                    ratio = 1;
                 }
             }
-            return { name, ratio, explicitRatio, rawInput: line }; // Store original 'line' as rawInput
+            return { name, ratio, explicitRatio, rawInput: line };
         });
     }
 
-    // Returns only valid entries that should be displayed on the wheel and used for spinning logic
     function getValidWheelEntries() {
         return wheelItems.filter(entry => entry.name !== '' && entry.ratio > 0);
     }
 
-    // Helper function to reset the Confirm Entries button and related states
     function resetConfirmButtonState() {
-        if (isConfirmed) { // Only reset if currently confirmed
+        if (isConfirmed) {
             isConfirmed = false;
             confirmEntriesButton.innerHTML = `<span class="material-symbols-outlined">check</span> Confirm Entries`;
             confirmEntriesButton.classList.remove('bg-red-500');
             confirmEntriesButton.classList.add('bg-primary');
-            confirmEntriesButton.dataset.action = 'confirm'; // Reset data-action attribute
-            // Re-enable shuffle/sort buttons
+            confirmEntriesButton.dataset.action = 'confirm';
             shuffleButton.disabled = false;
             sortButton.disabled = false;
             shuffleButton.classList.remove('opacity-50', 'cursor-not-allowed');
             sortButton.classList.remove('opacity-50', 'cursor-not-allowed');
-            // Disable spin button
             spinButton.disabled = true;
             spinButton.classList.add('opacity-50', 'cursor-not-allowed');
 
-            // If Single Entry Mode is OFF (i.e., we are in multi-line mode and textarea is editable)
-            // make sure textarea is editable and its background is reset
             const isSingleEntryMode = singleEntryModeToggle.dataset.toggled === 'true';
             if (!isSingleEntryMode) {
                 entriesTextarea.readOnly = false;
@@ -186,50 +215,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 entriesTextarea.style.opacity = '1';
             }
         }
-        // NEW: Clear and hide the spin result display area
         if (spinResultDisplayArea) {
             spinResultDisplayArea.textContent = '';
             spinResultDisplayArea.classList.add('hidden');
         }
-        updateEntriesCount(); // Call this to ensure spin button state is correct after reset
+        updateEntriesCount();
     }
 
-    // Renders the list of individual entries in Single Entry Mode
     function renderSingleEntryList() {
         if (!singleEntryListContainer) return;
 
-        singleEntryListContainer.innerHTML = ''; // Clear existing entries
-        // Explicitly remove conflicting initial classes from HTML
-        singleEntryListContainer.classList.remove('flex-col', 'gap-2', 'mt-4'); // Remove potentially conflicting classes
-        // Add the correct classes for horizontal flow and wrapping
-        singleEntryListContainer.classList.add('flex', 'flex-wrap', 'gap-2', 'mt-2'); // Add gap and top margin for spacing
+        singleEntryListContainer.innerHTML = '';
+        singleEntryListContainer.classList.remove('flex-col', 'gap-2', 'mt-4');
+        singleEntryListContainer.classList.add('flex', 'flex-wrap', 'gap-2', 'mt-2');
 
         wheelItems.forEach((entry, index) => {
-            const entryWrapper = document.createElement('div'); // A wrapper for each entry + delete button
+            const entryWrapper = document.createElement('div');
             entryWrapper.classList.add(
-                'flex', 'items-center', // Align text and delete button horizontally
-                'bg-slate-100', 'dark:bg-slate-700',
-                'text-slate-900', 'dark:text-white',
-                'rounded-full', // Make it pill-shaped
-                'px-2', 'py-0.5', // Compact padding, adjusted for better fit
-                'text-sm', // Smaller font size for the entry text
-                'font-medium',
-                'whitespace-nowrap' // Prevent entry text from wrapping within itself
+                'flex', 'items-center', 'bg-slate-100', 'dark:bg-slate-700',
+                'text-slate-900', 'dark:text-white', 'rounded-full', 'px-2', 'py-0.5',
+                'text-sm', 'font-medium', 'whitespace-nowrap'
             );
             entryWrapper.setAttribute('data-index', index);
 
             const entryText = document.createElement('span');
             entryText.textContent = entry.name;
-            // entryText.classList.add('truncate'); // No need for truncate if wrapping is handled by flex-wrap
 
             const deleteButton = document.createElement('button');
-            deleteButton.classList.add(
-                'ml-1', // Small margin between text and delete icon
-                'p-0.5', // Smaller padding for the delete button
-                'rounded-full',
-                'hover:bg-red-500/20', 'transition-colors'
-            );
-            deleteButton.innerHTML = `<span class="material-symbols-outlined text-red-500 text-xs">close</span>`; // Even smaller icon
+            deleteButton.classList.add( 'ml-1', 'p-0.5', 'rounded-full', 'hover:bg-red-500/20', 'transition-colors');
+            deleteButton.innerHTML = `<span class="material-symbols-outlined text-red-500 text-xs">close</span>`;
             deleteButton.addEventListener('click', (event) => {
                 const itemIndex = parseInt(event.currentTarget.closest('[data-index]').dataset.index);
                 deleteSingleEntry(itemIndex);
@@ -241,27 +255,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Deletes an entry from the wheelItems array and updates the UI
     function deleteSingleEntry(indexToDelete) {
         if (isConfirmed) {
             alert('Please cancel confirmation to delete entries.');
             return;
         }
-        wheelItems.splice(indexToDelete, 1); // Remove entry from array
-        syncTextareaWithWheelItems(); // Update textarea, wheel, and re-render list
+        wheelItems.splice(indexToDelete, 1);
+        syncTextareaWithWheelItems();
     }
 
-    // Syncs the textarea content with the current wheelItems array
     function syncTextareaWithWheelItems() {
         const isRatioFreeMode = ratioFreeModeToggle.dataset.toggled === 'true';
         const isSingleEntryMode = singleEntryModeToggle.dataset.toggled === 'true';
 
         let textValue;
         if (isRatioFreeMode && !isSingleEntryMode) {
-            // In Ratio Free Mode, display the raw input from the user
             textValue = wheelItems.map(entry => entry.rawInput).join('\n');
         } else {
-            // In default mode, just display the name
             textValue = wheelItems.map(entry => entry.name).join('\n');
         }
         
@@ -273,20 +283,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isSingleEntryMode) {
             renderSingleEntryList();
         }
-
-        // Update stats UI if modal is open
-        if (historyModal && !historyModal.classList.contains('hidden')) {
-            updateStatsUI();
-        }
     }
 
     function updateEntriesCount() {
-        // Only count entries with a ratio > 0, as these are the ones that participate in the wheel
         const numEntries = getValidWheelEntries().length;
-
         entriesCountElem.textContent = `${numEntries} Entries`;
 
-        // Update color based on min/max entries
         if (numEntries < MIN_ENTRIES || numEntries > MAX_ENTRIES) {
             entriesCountElem.classList.remove('text-primary');
             entriesCountElem.classList.add('text-red-500');
@@ -295,7 +297,6 @@ document.addEventListener('DOMContentLoaded', () => {
             entriesCountElem.classList.add('text-primary');
         }
 
-        // Disable/Enable spin button based on entry count AND confirmation status
         if (numEntries < MIN_ENTRIES || !isConfirmed) {
             spinButton.disabled = true;
             spinButton.classList.add('opacity-50', 'cursor-not-allowed');
@@ -304,7 +305,6 @@ document.addEventListener('DOMContentLoaded', () => {
             spinButton.classList.remove('opacity-50', 'cursor-not-allowed');
         }
 
-        // Disable/Enable add single entry button based on max entry count
         if (numEntries >= MAX_ENTRIES) {
             singleEntryAddButton.disabled = true;
             singleEntryAddButton.classList.add('opacity-50', 'cursor-not-allowed');
@@ -313,7 +313,6 @@ document.addEventListener('DOMContentLoaded', () => {
             singleEntryAddButton.classList.remove('opacity-50', 'cursor-not-allowed');
         }
 
-        // Disable/Enable confirm entries button based on max entry count
         if (numEntries > MAX_ENTRIES) { 
              confirmEntriesButton.disabled = true;
              confirmEntriesButton.classList.add('opacity-50', 'cursor-not-allowed');
@@ -354,7 +353,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const size = spinnerWheel.offsetWidth;
         canvas.width = size;
         canvas.height = size;
-
         const center = size / 2;
         const radius = center;
 
@@ -362,16 +360,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let entriesToDraw = getValidWheelEntries();
         const isSingleEntryMode = singleEntryModeToggle.dataset.toggled === 'true';
-
         if (isSingleEntryMode) {
             entriesToDraw = entriesToDraw.map(entry => ({ ...entry, ratio: 1 }));
         }
 
-        const items = entriesToDraw.map(entry => ({
-            text: entry.name,
-            percent: entry.ratio,
-            scale: 1
-        }));
+        const items = entriesToDraw.map(entry => ({ text: entry.name, percent: entry.ratio, scale: 1 }));
 
         const count = items.length;
         if (count === 0) {
@@ -381,19 +374,15 @@ document.addEventListener('DOMContentLoaded', () => {
         spinnerWheel.style.background = 'none';
 
         let currentStartAngleDegrees = 0;
-
         const total = items.reduce((s, item) => s + (item.percent || 0), 0);
         if (total === 0 && count > 0) {
-            console.warn("Total percentage is zero, but entries exist. Displaying equal slices.");
             items.forEach(item => item.percent = 1);
             total = count;
         }
 
-
         items.forEach((item, i) => {
             const sliceAngleDegrees = (item.percent / total) * 360;
             const endAngleDegrees = currentStartAngleDegrees + sliceAngleDegrees;
-
             const startAngleRadians = currentStartAngleDegrees * (Math.PI / 180);
             const endAngleRadians = endAngleDegrees * (Math.PI / 180);
 
@@ -401,7 +390,6 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.moveTo(center, center);
             ctx.arc(center, center, radius, startAngleRadians, endAngleRadians);
             ctx.closePath();
-
             ctx.fillStyle = wheelColors[i % wheelColors.length];
             ctx.fill();
 
@@ -410,13 +398,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const textR = radius * 0.65;
 
             ctx.save();
-            ctx.translate(
-                center + Math.cos(midAngleRadians) * textR,
-                center + Math.sin(midAngleRadians) * textR
-            );
-
+            ctx.translate(center + Math.cos(midAngleRadians) * textR, center + Math.sin(midAngleRadians) * textR);
             ctx.rotate(midAngleRadians);
-
             if (midAngleDegrees > 90 && midAngleDegrees < 270) {
                 ctx.rotate(Math.PI);
             }
@@ -426,14 +409,12 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.fillStyle = "#fff";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-
             ctx.fillText(item.text, 0, 0);
 
             if (item.text === '6' || item.text === '9') {
                 const textWidth = ctx.measureText(item.text).width;
                 const underlineThickness = baseSize / 10;
                 const underlineOffset = baseSize * 0.75;
-
                 ctx.save();
                 ctx.beginPath();
                 ctx.moveTo(-textWidth / 2, underlineOffset);
@@ -444,7 +425,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.restore();
             }
             ctx.restore();
-
             currentStartAngleDegrees = endAngleDegrees;
         });
     }
@@ -457,7 +437,6 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(`Please add at least ${MIN_ENTRIES} entries to spin the wheel.`);
             return;
         }
-
         if (!isConfirmed) {
             alert('Please confirm your entries before spinning the wheel.');
             return;
@@ -465,11 +444,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const isRatioFreeMode = ratioFreeModeToggle.dataset.toggled === 'true';
         const isSingleEntryMode = singleEntryModeToggle.dataset.toggled === 'true';
-
         if (isSingleEntryMode) {
             entries = entries.map(entry => ({ ...entry, ratio: 1 }));
         }
-        
         if (isRatioFreeMode && !isSingleEntryMode) {
             const totalPercentage = entries.reduce((sum, entry) => sum + entry.ratio, 0);
             if (totalPercentage !== 100) {
@@ -482,7 +459,6 @@ document.addEventListener('DOMContentLoaded', () => {
         spinButton.classList.add('opacity-50', 'cursor-not-allowed');
 
         const totalRatio = entries.reduce((sum, entry) => sum + entry.ratio, 0);
-        
         let randomValue = Math.random() * totalRatio;
         let winningIndex = -1;
         let cumulativeRatio = 0;
@@ -504,22 +480,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const anglePerRatioUnit = 360 / totalRatio;
-
         let winningSegmentStartAngle = 0;
         for (let i = 0; i < winningIndex; i++) {
             winningSegmentStartAngle += entries[i].ratio * anglePerRatioUnit;
         }
-        const winningSegmentEndAngle = winningSegmentStartAngle + (winningEntry.ratio * anglePerRatioUnit);
-
         const randomAngleWithinSegment = Math.random() * (winningEntry.ratio * anglePerRatioUnit);
         const targetLandingAngle = winningSegmentStartAngle + randomAngleWithinSegment;
-
         const fullRotationsForEffect = 5;
         let rotationToAlign = 270 - targetLandingAngle;
         rotationToAlign = (rotationToAlign % 360 + 360) % 360; 
-        
         const finalRotation = currentRotation + (fullRotationsForEffect * 360) + rotationToAlign - (currentRotation % 360);
-
         const spinDuration = Math.random() * (MAX_SPIN_DURATION - MIN_SPIN_DURATION) + MIN_SPIN_DURATION;
         const spinDurationSeconds = spinDuration / 1000;
 
@@ -528,27 +498,25 @@ document.addEventListener('DOMContentLoaded', () => {
         currentRotation = finalRotation;
 
         setTimeout(() => {
-            // --- Update History & Statistics ---
             const key = getSetKey(entries);
             if (!rouletteHistory[key]) {
                 rouletteHistory[key] = { total: 0, results: {} };
+                // Initialize results for all entries in the set to 0
+                entries.forEach(entry => {
+                    rouletteHistory[key].results[entry.name] = 0;
+                });
             }
             rouletteHistory[key].total++;
             const winnerName = winningEntry.name;
             rouletteHistory[key].results[winnerName] = (rouletteHistory[key].results[winnerName] || 0) + 1;
             localStorage.setItem('rouletteHistory', JSON.stringify(rouletteHistory));
-            // --- End Update ---
 
             let formattedWinningEntry = winnerName;
             if (winnerName === '6' || winnerName === '9') {
                 formattedWinningEntry = `<u>${winnerName}</u>`;
             }
 
-            if (spinResultText) {
-                spinResultText.innerHTML = formattedWinningEntry;
-            } else {
-                console.error("Error: spinResultText element not found in setTimeout callback.");
-            }
+            if (spinResultText) spinResultText.innerHTML = formattedWinningEntry;
             spinResultModal.classList.remove('hidden');
             
             if (spinResultDisplayArea) {
@@ -564,31 +532,25 @@ document.addEventListener('DOMContentLoaded', () => {
             spinButton.classList.remove('opacity-50', 'cursor-not-allowed');
             spinnerWheel.style.transition = 'none';
 
-            // Update stats UI if modal is open
-            if (historyModal && !historyModal.classList.contains('hidden')) {
-                updateStatsUI();
-            }
-
         }, spinDuration);
     }
 
     function shuffleEntries() {
         if (isConfirmed) return;
-
         for (let i = wheelItems.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [wheelItems[i], wheelItems[j]] = [wheelItems[j], wheelItems[i]];
         }
-
         syncTextareaWithWheelItems();
     }
 
     function sortEntries() {
         if (isConfirmed) return;
-
         wheelItems.sort((a, b) => a.name.localeCompare(b.name));
         syncTextareaWithWheelItems();
     }
+
+
 
     function addSingleEntry() {
         if (wheelItems.length >= MAX_ENTRIES) {
@@ -606,7 +568,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (newEntryText.includes(':')) {
                 newEntryName = newEntryText.split(':')[0].trim();
             }
-
             wheelItems.push({ name: newEntryName, ratio: 1 });
             singleEntryInput.value = '';
             syncTextareaWithWheelItems();
@@ -643,12 +604,10 @@ document.addEventListener('DOMContentLoaded', () => {
             entriesTextarea.readOnly = true;
             entriesTextarea.style.backgroundColor = 'var(--background-light)';
             entriesTextarea.style.opacity = '0.7';
-
             shuffleButton.disabled = true;
             sortButton.disabled = true;
             shuffleButton.classList.add('opacity-50', 'cursor-not-allowed');
             sortButton.classList.add('opacity-50', 'cursor-not-allowed');
-
             confirmEntriesButton.innerHTML = `<span class="material-symbols-outlined">close</span> Cancel`;
             confirmEntriesButton.classList.remove('bg-primary');
             confirmEntriesButton.classList.add('bg-red-500');
@@ -668,11 +627,9 @@ document.addEventListener('DOMContentLoaded', () => {
             sortButton.disabled = false;
             shuffleButton.classList.remove('opacity-50', 'cursor-not-allowed');
             sortButton.classList.remove('opacity-50', 'cursor-not-allowed');
-
             confirmEntriesButton.innerHTML = `<span class="material-symbols-outlined">check</span> Confirm Entries`;
-            confirmEntriesButton.classList.remove('bg-red-500');
+            confirmEntriesButton.classList.remove('bg-primary');
             confirmEntriesButton.classList.add('bg-primary');
-
             spinButton.disabled = true;
             spinButton.classList.add('opacity-50', 'cursor-not-allowed');
         }
@@ -684,26 +641,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Toggle Logic ---
     function toggleSingleEntryMode() {
-        if (isConfirmed) {
-            resetConfirmButtonState();
-        }
+        if (isConfirmed) resetConfirmButtonState();
         if (spinResultDisplayArea) {
             spinResultDisplayArea.textContent = '';
             spinResultDisplayArea.classList.add('hidden');
         }
 
-        const isToggledBeforeClick = singleEntryModeToggle.dataset.toggled === 'true';
-        const newIsToggled = !isToggledBeforeClick;
-
+        const newIsToggled = !(singleEntryModeToggle.dataset.toggled === 'true');
         singleEntryModeToggle.dataset.toggled = newIsToggled;
-        
         singleEntryModeToggle.classList.toggle('bg-primary', newIsToggled);
         singleEntryModeToggle.classList.toggle('bg-primary/30', !newIsToggled);
         singleEntryModeToggle.querySelector('.toggle-switch-handle').classList.toggle('translate-x-full', newIsToggled);
 
         singleEntryInputContainer.classList.toggle('hidden', !newIsToggled);
         entriesTextarea.readOnly = newIsToggled;
-
         singleEntryAddButton.classList.toggle('hidden', !newIsToggled);
         singleEntryListContainer.classList.toggle('hidden', !newIsToggled);
 
@@ -725,29 +676,22 @@ document.addEventListener('DOMContentLoaded', () => {
             singleEntryInput.placeholder = 'Enter one entry';
             totalPercentageDisplay.classList.add('hidden');
 
-            if (wasRatioFreeModeOn) {
-                alert('Single Entry Mode is ON. Ratio Free Mode has been disabled.');
-            }
-
+            if (wasRatioFreeModeOn) alert('Single Entry Mode is ON. Ratio Free Mode has been disabled.');
             syncTextareaWithWheelItems();
             renderSingleEntryList();
         } else {
             entriesTextarea.style.backgroundColor = '';
             entriesTextarea.style.opacity = '1';
             entriesTextarea.focus();
-
             ratioFreeModeToggle.disabled = false;
             ratioFreeModeToggle.dataset.toggled = 'false';
             ratioFreeModeToggle.classList.remove('bg-primary');
             ratioFreeModeToggle.classList.add('bg-primary/30');
             ratioFreeModeToggle.querySelector('.toggle-switch-handle').classList.remove('translate-x-full');
             document.getElementById('ratio-free-desc').textContent = 'Define custom ratios for entries';
-            
             singleEntryInput.placeholder = 'Enter one entry';
             entriesTextarea.placeholder = 'Type entries here... (one per line)';
-
             confirmEntriesButton.classList.remove('hidden'); 
-
             syncTextareaWithWheelItems();
             singleEntryListContainer.innerHTML = '';
         }
@@ -755,96 +699,62 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function toggleRatioFreeMode() {
-        if (isConfirmed) {
-            resetConfirmButtonState();
-        }
+        if (isConfirmed) resetConfirmButtonState();
         if (spinResultDisplayArea) {
             spinResultDisplayArea.textContent = '';
             spinResultDisplayArea.classList.add('hidden');
         }
 
-        const isToggledBeforeClick = ratioFreeModeToggle.dataset.toggled === 'true';
-        const newIsToggled = !isToggledBeforeClick;
-
-        if (singleEntryModeToggle.dataset.toggled === 'true') {
-            return;
-        }
+        const newIsToggled = !(ratioFreeModeToggle.dataset.toggled === 'true');
+        if (singleEntryModeToggle.dataset.toggled === 'true') return;
 
         ratioFreeModeToggle.dataset.toggled = newIsToggled;
-        
         ratioFreeModeToggle.classList.toggle('bg-primary', newIsToggled);
         ratioFreeModeToggle.classList.toggle('bg-primary/30', !newIsToggled);
         ratioFreeModeToggle.querySelector('.toggle-switch-handle').classList.toggle('translate-x-full', newIsToggled);
 
-        const isSingleEntryMode = singleEntryModeToggle.dataset.toggled === 'true';
-        if (!isSingleEntryMode) {
-            if (newIsToggled) {
-                entriesTextarea.placeholder = 'Enter Name:Percentage (e.g., "Apple:20", "Banana:30")';
-            } else {
-                entriesTextarea.placeholder = 'Type entries here... (one per line)';
-            }
+        if (!(singleEntryModeToggle.dataset.toggled === 'true')) {
+            entriesTextarea.placeholder = newIsToggled ? 'Enter Name:Percentage (e.g., "Apple:20", "Banana:30")' : 'Type entries here... (one per line)';
         }
         
         entriesTextarea.value = '';
         wheelItems = [];
-
         syncTextareaWithWheelItems();
     }
 
     // --- Event Listeners ---
-    if (spindecideGuideNavLink) {
-        spindecideGuideNavLink.addEventListener('click', (event) => {
-            event.preventDefault();
-            spindecideGuideModal.classList.remove('hidden');
-        });
-    }
-
-    if (spindecideModalCloseButton) {
-        spindecideModalCloseButton.addEventListener('click', () => {
-            spindecideGuideModal.classList.add('hidden');
-        });
-    }
-
-    if (spindecideGuideModal) {
-        spindecideGuideModal.addEventListener('click', (event) => {
-            if (event.target === spindecideGuideModal) {
-                spindecideGuideModal.classList.add('hidden');
-            }
-        });
-    }
+    if (spindecideGuideNavLink) spindecideGuideNavLink.addEventListener('click', (e) => { e.preventDefault(); spindecideGuideModal.classList.remove('hidden'); });
+    if (spindecideModalCloseButton) spindecideModalCloseButton.addEventListener('click', () => spindecideGuideModal.classList.add('hidden'));
+    if (spindecideGuideModal) spindecideGuideModal.addEventListener('click', (e) => { if (e.target === spindecideGuideModal) spindecideGuideModal.classList.add('hidden'); });
 
     if (historyButton) {
         historyButton.addEventListener('click', () => {
-            updateStatsUI();
+            populateHistoryDropdown();
+            const currentKey = getSetKey(getValidWheelEntries());
+            
+            if (rouletteHistory[currentKey]) {
+                historyDropdown.value = currentKey;
+            } else if (Object.keys(rouletteHistory).length > 0) {
+                historyDropdown.value = Object.keys(rouletteHistory)[0];
+            }
+            
+            displayStatsForKey(historyDropdown.value);
             historyModal.classList.remove('hidden');
         });
     }
-    if (historyModalCloseButton) {
-        historyModalCloseButton.addEventListener('click', () => {
-            historyModal.classList.add('hidden');
-        });
-    }
-    if (historyModal) {
-        historyModal.addEventListener('click', (event) => {
-            if (event.target === historyModal) {
-                historyModal.classList.add('hidden');
-            }
-        });
-    }
-    if (statsResetButton) {
-        statsResetButton.addEventListener('click', resetCurrentStats);
-    }
+    if (historyModalCloseButton) historyModalCloseButton.addEventListener('click', () => historyModal.classList.add('hidden'));
+    if (historyModal) historyModal.addEventListener('click', (e) => { if (e.target === historyModal) historyModal.classList.add('hidden'); });
+    if (historyDropdown) historyDropdown.addEventListener('change', (e) => displayStatsForKey(e.target.value));
+    if (statsResetButton) statsResetButton.addEventListener('click', resetSelectedStats);
 
 
     if (entriesTextarea) {
         entriesTextarea.addEventListener('input', () => {
             let currentEntries = entriesTextarea.value.split('\n');
             let nonEmptyEntries = currentEntries.filter(entry => entry.trim() !== '');
-
             if (nonEmptyEntries.length > MAX_ENTRIES) {
                 let truncatedEntries = nonEmptyEntries.slice(0, MAX_ENTRIES);
                 entriesTextarea.value = truncatedEntries.join('\n');
-
                 alert(`You can only have a maximum of ${MAX_ENTRIES} active entries. Excess entries have been removed.`);
                 wheelItems = parseTextareaToWheelItems(entriesTextarea.value);
                 syncTextareaWithWheelItems();
@@ -855,62 +765,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (spinButton) {
-        spinButton.addEventListener('click', spinWheel);
-    }
-
-    if (shuffleButton) {
-        shuffleButton.addEventListener('click', shuffleEntries);
-    }
-
-    if (sortButton) {
-        sortButton.addEventListener('click', sortEntries);
-    }
-
-    if (confirmEntriesButton) {
-        confirmEntriesButton.addEventListener('click', handleConfirmEntries);
-    }
-
-    if (singleEntryAddButton) {
-        singleEntryAddButton.addEventListener('click', addSingleEntry);
-    }
-
-    if (singleEntryModeToggle) {
-        singleEntryModeToggle.addEventListener('click', toggleSingleEntryMode);
-    }
-
-    if (ratioFreeModeToggle) {
-        ratioFreeModeToggle.addEventListener('click', toggleRatioFreeMode);
-    }
-
-    if (spinResultCloseButton) {
-        spinResultCloseButton.addEventListener('click', () => {
-            spinResultModal.classList.add('hidden');
-        });
-    }
-
-    if (spinResultModal) {
-        spinResultModal.addEventListener('click', (event) => {
-            if (event.target === spinResultModal) {
-                spinResultModal.classList.add('hidden');
-            }
-        });
-    }
+    if (spinButton) spinButton.addEventListener('click', spinWheel);
+    if (shuffleButton) shuffleButton.addEventListener('click', shuffleEntries);
+    if (sortButton) sortButton.addEventListener('click', sortEntries);
+    if (confirmEntriesButton) confirmEntriesButton.addEventListener('click', handleConfirmEntries);
+    if (singleEntryAddButton) singleEntryAddButton.addEventListener('click', addSingleEntry);
+    if (singleEntryModeToggle) singleEntryModeToggle.addEventListener('click', toggleSingleEntryMode);
+    if (ratioFreeModeToggle) ratioFreeModeToggle.addEventListener('click', toggleRatioFreeMode);
+    if (spinResultCloseButton) spinResultCloseButton.addEventListener('click', () => spinResultModal.classList.add('hidden'));
+    if (spinResultModal) spinResultModal.addEventListener('click', (e) => { if (e.target === spinResultModal) spinResultModal.classList.add('hidden'); });
+    if (resetEntriesButton) resetEntriesButton.addEventListener('click', resetEntries);
 
     // --- Initial Setup ---
     rouletteHistory = JSON.parse(localStorage.getItem('rouletteHistory')) || {};
 
     let initialSingleEntryModeToggled = singleEntryModeToggle.dataset.toggled === 'true';
-    let initialRatioFreeModeToggled = ratioFreeModeToggle.dataset.toggled === 'true';
-
     singleEntryModeToggle.classList.toggle('bg-primary', initialSingleEntryModeToggled);
     singleEntryModeToggle.classList.toggle('bg-primary/30', !initialSingleEntryModeToggled);
     singleEntryModeToggle.querySelector('.toggle-switch-handle').classList.toggle('translate-x-full', initialSingleEntryModeToggled);
 
+    let initialRatioFreeModeToggled = ratioFreeModeToggle.dataset.toggled === 'true';
     ratioFreeModeToggle.classList.toggle('bg-primary', initialRatioFreeModeToggled);
     ratioFreeModeToggle.classList.toggle('bg-primary/30', !initialRatioFreeModeToggled);
     ratioFreeModeToggle.querySelector('.toggle-switch-handle').classList.toggle('translate-x-full', initialRatioFreeModeToggled);
-
 
     singleEntryInputContainer.classList.toggle('hidden', !initialSingleEntryModeToggled);
     entriesTextarea.readOnly = initialSingleEntryModeToggled;
@@ -920,7 +797,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (initialSingleEntryModeToggled) {
         entriesTextarea.style.backgroundColor = 'var(--background-light)';
         entriesTextarea.style.opacity = '0.7';
-
         ratioFreeModeToggle.disabled = true;
         ratioFreeModeToggle.dataset.toggled = 'false';
         ratioFreeModeToggle.classList.remove('bg-primary');
@@ -935,24 +811,20 @@ document.addEventListener('DOMContentLoaded', () => {
         entriesTextarea.style.opacity = '1';
         ratioFreeModeToggle.disabled = false;
         document.getElementById('ratio-free-desc').textContent = 'Define custom ratios for entries';
-        
         ratioFreeModeToggle.dataset.toggled = 'false';
         ratioFreeModeToggle.classList.remove('bg-primary');
         ratioFreeModeToggle.classList.add('bg-primary/30');
         ratioFreeModeToggle.querySelector('.toggle-switch-handle').classList.remove('translate-x-full');
-
         singleEntryInput.placeholder = 'Enter one entry';
         entriesTextarea.placeholder = 'Type entries here... (one per line)';
     }
     isConfirmed = false;
     spinButton.disabled = true;
     spinButton.classList.add('opacity-50', 'cursor-not-allowed');
-
     shuffleButton.disabled = false;
     sortButton.disabled = false;
     shuffleButton.classList.remove('opacity-50', 'cursor-not-allowed');
     sortButton.classList.remove('opacity-50', 'cursor-not-allowed');
-
 
     wheelItems = parseTextareaToWheelItems(entriesTextarea.value);
     syncTextareaWithWheelItems();
