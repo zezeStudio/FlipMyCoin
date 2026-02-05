@@ -66,13 +66,13 @@
                 </button>
             </div>
             <!-- Spinner Container -->
-            <div class="relative w-full max-w-[600px] aspect-square flex items-center justify-center">
+            <div id="spinner-wheel-container" class="relative w-full max-w-[600px] aspect-square flex items-center justify-center">
                 <!-- The Pointer -->
                 <div class="absolute -top-4 left-1/2 -translate-x-1/2 z-30 text-primary drop-shadow-md">
                     <span class="material-symbols-outlined text-[64px] scale-y-[-1]">navigation</span>
                 </div>
                 <!-- The Wheel (Visual representation) -->
-                <div id="spinner-wheel" class="w-full h-full rounded-full border-[12px] border-white dark:border-[#233948] shadow-2xl relative overflow-hidden bg-white dark:bg-[#1a262e]">
+                <div id="spinner-wheel" class="w-full h-full rounded-full border-[12px] border-white dark:border-[#233948] shadow-2xl relative bg-white dark:bg-[#1a262e]">
                     <!-- Simulated colorful segments using conic-gradient -->
                     <div class="absolute inset-0 rounded-full">
                     </div>
@@ -84,15 +84,7 @@
                 </div>
             </div>
             <!-- Floating Controls -->
-            <div class="flex gap-4 mt-12 bg-white/80 dark:bg-[#1a262e]/50 backdrop-blur-sm p-3 rounded-full border border-slate-200 dark:border-[#233948]">
-
-                <button id="fullscreen-button" class="p-2 hover:bg-primary/20 rounded-full transition-colors">
-                    <span class="material-symbols-outlined">fullscreen</span>
-                </button>
-                <button id="zoom-button" class="p-2 hover:bg-primary/20 rounded-full transition-colors">
-                    <span class="material-symbols-outlined">zoom_in</span>
-                </button>
-            </div>
+            
         </div>
         <!-- Right Sidebar: Entries -->
                             <aside class="flex-1 min-w-[360px] max-w-[420px] bg-white dark:bg-[#1a262e] border-l border-slate-200 dark:border-[#233948] p-6 flex flex-col gap-6">

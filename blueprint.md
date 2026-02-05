@@ -46,6 +46,7 @@ This document outlines the Spin to Decide feature within the CoinFlip Pro projec
     - **Data Adaptation for Canvas:** Original entries (from `getEntries()`, containing `name` and `ratio`) are mapped to an `items` array, where `entry.name` becomes `item.text` and `entry.ratio` becomes `item.percent`. A default `item.scale` of `1` is introduced for font scaling.
     - **Canvas-based Slice Drawing:** Instead of using `conic-gradient`, the wheel slices are now drawn directly onto the canvas using `beginPath`, `moveTo`, `arc`, and `fill` methods.
     - **New HSL Color Scheme for Slices:** The slices are now colored using a dynamic HSL color scheme (`hsl(${i * 360 / items.length},70%,55%)`) that generates distinct colors for each segment based on its index.
+    - **Dynamic Canvas Scaling for Zoom:** The `generateWheel()` function no longer contains zoom-related scaling logic.
     - **Visual Discrepancy with Ratio Free Mode:** *Crucially, the visual representation of the wheel now uses slice sizes directly proportional to `item.percent` (derived from `entry.ratio`). However, if "Ratio Free Mode" is used and the total percentage of entries does not sum to 100, the visual distribution on the wheel will accurately reflect these custom ratios. Previously, equal slices were drawn regardless of ratio. The spinning logic continues to respect the defined ratios for determining the winner.*
     - **Initialization of `currentStartAngle`:** A local `let currentStartAngle = 0;` initializes the angle for drawing slices and text, effectively setting the wheel's starting point to the right (3 o'clock position) for the first segment.
     - **Optimized Font Sizing:** Font size now scales effectively with the wheel's radius and a base size (`radius / 10`), potentially further adjusted by `item.scale`.
@@ -66,23 +67,101 @@ This document outlines the Spin to Decide feature within the CoinFlip Pro projec
 
 ### Control Buttons Functionality
 - **Volume Button Removal:** The volume button HTML element has been removed from `SpinDecide.html` as per user request.
-- **Fullscreen Button Implementation:**
-    - The fullscreen button (`id="fullscreen-button"`) in `SpinDecide.html` has been given an ID.
-    - JavaScript logic in `SpinDecide.js` now toggles the browser's fullscreen mode for the entire document when this button is clicked.
-- **Zoom Button Implementation:**
-    - The zoom button (`id="zoom-button"`) in `SpinDecide.html` has been given an ID.
-    - JavaScript logic in `SpinDecide.js` now toggles a `zoomed` CSS class on the `spinnerWheel` element when this button is clicked.
-    - Corresponding CSS for the `.zoomed` class has been added to `SpinDecide.css` to apply a `transform: scale(1.2)` effect, visually zooming the wheel.
+- **Fullscreen and Zoom Button Removal:** The fullscreen and zoom buttons, along with their associated JavaScript and CSS, have been removed. The entire "Floating Controls" div which contained these buttons has also been removed from `SpinDecide.html`.
+
+### Spin Result Modal Implementation
+- **Description:** A modal is implemented to display the winning entry after a spin.
+- **Key Changes:**
+    - **HTML Structure:** The HTML structure for the magnified segment modal has been removed.
+    - **JavaScript DOM Elements:** JavaScript references and logic related to the fullscreen and zoom functionality, including `lastWinningEntry` and `drawMagnifiedSegment()`, have been removed.
+    - **Event Listeners:** Event listeners for fullscreen and zoom buttons have been removed.
+    - **CSS Styling:** Dedicated CSS rules for fullscreen and zoom features have been removed.
 
 ## Artifact Trail
-- **`SpinDecide.html`:** Volume button removed. `id="fullscreen-button"` and `id="zoom-button"` added to respective buttons.
-- **`SpinDecide.js`:**
-    - DOM element declarations for `fullscreenButton` and `zoomButton` added.
-    - `toggleFullScreen()` function added to handle fullscreen entry and exit.
-    - `toggleZoom()` function added to toggle the `zoomed` class on `spinnerWheel` and re-render the wheel.
-    - Event listeners added for `fullscreenButton` and `zoomButton`.
-- **`SpinDecide.css`:** Added `.zoomed` CSS class with `transform: scale(1.2)` and `transition` properties.
+- **`SpinDecide.html`:** Volume button, fullscreen button, zoom button, the entire "Floating Controls" div, and the entire magnified segment modal HTML structure removed.
+- ****`SpinDecide.js`**: `lastWinningEntry` global variable, `toggleFullScreen()` function, `toggleZoom()` function, `drawMagnifiedSegment()` function, and all related DOM element declarations and event listeners for fullscreen and zoom removed.**
+- **`SpinDecide.css`:** All CSS rules related to `.zoomed` and the magnified segment modal (`#magnified-segment-modal`, `#magnified-segment-content`, `#magnified-segment-canvas`, `.close-button` within the modal) removed.
 
 ## Next Steps
-- User to verify the functionality of the fullscreen and zoom buttons.
-- User to verify the final state of the roulette wheel and overall application.
+- **Completed.** The fullscreen and zoom features have been successfully removed and the application is stable.
+
+    <task_state>
+        <step>
+            [DONE] `SpinDecide.js`의 구문 오류 수정.
+        </step>
+        <step>
+            [DONE] `SpinDecide.js`에 `renderSingleEntryList()` 및 `deleteSingleEntry(index)` 함수 구현.
+        </step>
+        <step>
+            [DONE] `SpinDecide.js`의 `toggleSingleEntryMode()`, `syncTextareaWithWheelItems()`, `updateEntriesCount()` 및 `DOMContentLoaded` 초기 설정 블록을 수정하여 새로운 삭제 기능 및 업데이트된 버튼 동작에 대한 가시성, 상태 및 렌더링을 올바르게 관리.
+        </step>
+        <step>
+            [DONE] 삭제 아이콘 폰트 크기 `text-lg`를 `text-sm`으로 변경하여 글자 크기에 맞게 조절.
+        </step>
+        <step>
+            [DONE] `renderSingleEntryList` 함수 수정: 개별 항목을 더 작은 텍스트, 압축된 알약 모양, 가로 줄 바꿈으로 표시하고, `singleEntryListContainer`의 충돌 클래스를 제거하여 올바른 flex-wrap 동작 보장.
+        </step>
+        <step>
+            [DONE] 애플리케이션을 테스트하여 모든 기능이 예상대로 작동하는지 확인 (이전 작업).
+        </step>
+        <step>
+            [DONE] `Ratio Free Mode` 상단에 룰렛 출력값을 보여주는 영역 추가 및 JS 로직 구현.
+        </step>
+        <step>
+            [DONE] `SpinDecide.html`에 `spin-result-display-area` 추가.
+        </step>
+        <step>
+            [DONE] `SpinDecide.js`에 `spinResultDisplayArea` DOM 요소 선언.
+        </step>
+        <step>
+            [DONE] `SpinDecide.js`의 `spinWheel()` 함수에 스핀 결과 표시 로직 추가 (중복 제거 포함).
+        </step>
+        <step>
+            [DONE] `SpinDecide.js`의 `resetConfirmButtonState()` 함수 내 중복된 `spinResultDisplayArea` 초기화 로직 수정.
+        </step>
+        <step>
+            [DONE] `SpinDecide.html`에서 `entries-textarea`의 높이를 `h-[300px]`로 설정하여 모든 모드에서 일관성을 유지했습니다.
+        </step>
+        <step>
+            [DONE] `SpinDecide.html`에서 "Ratio Free Mode" 텍스트의 들여쓰기 및 정렬을 `text-left` 클래스를 사용하여 수정했습니다.
+        </step>
+        <step>
+            [DONE] `SpinDecide.js`의 `spinWheel()` 함수를 수정하여 당첨 항목이 "6" 또는 "9"일 때 결과 모달 및 표시 영역에 밑줄(`<u>`)을 추가했습니다.
+        </step>
+        <step>
+            [DONE] `SpinDecide.js`의 `generateWheel()` 함수를 수정하여 룰렛 휠 캔버스에 그려지는 텍스트 "6" 또는 "9" 아래에 밑줄을 수동으로 그렸습니다.
+        </step>
+        <step>
+            [DONE] HTML Modification: Add Magnified Segment Modal Structure.
+        </step>
+        <step>
+            [DONE] JavaScript Modification: Declare New DOM Elements for the magnified segment modal.
+        </step>
+        <step>
+            [DONE] JavaScript Modification: Update toggleZoom() Function to open the new modal and call drawMagnifiedSegment().
+        </step>
+        <step>
+            [DONE] JavaScript Modification: Store winningEntry from spinWheel() in a global variable.
+        </step>
+        <step>
+            [DONE] JavaScript Modification: Create `drawMagnifiedSegment()` Function to render the magnified 12 o'clock segment.
+        </step>
+        <step>
+            [DONE] JavaScript Modification: Add Event Listeners for closing the new modal.
+        </step>
+        <step>
+            [DONE] CSS Modification: Style New Modal (overlay, content box).
+        </step>
+        <step>
+            [DONE] CSS Modification: Adjust Wheel Text Canvas margin to compensate for border.
+        </step>
+        <step>
+            [DONE] Bug Fix: Magnified segment modal content not appearing due to missing HTML structure for `#magnified-segment-content`. The canvas and close button are now correctly wrapped inside a `div` with `id="magnified-segment-content"`.
+        </step>
+        <step>
+            [DONE] JavaScript Modification: Removed global declarations for magnified segment modal elements and moved their retrieval and event listener attachment inside the `toggleZoom` function to ensure correct referencing and address potential timing issues.
+        </step>
+        <step>
+            [DONE] Removed fullscreen and zoom features from `SpinDecide.html`, `SpinDecide.js`, and `SpinDecide.css` as requested.
+        </step>
+    </task_state>

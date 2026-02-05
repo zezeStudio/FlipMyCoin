@@ -33,8 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const spinResultText = document.getElementById('spin-result-text');
     const spinResultCloseButton = document.getElementById('spin-result-close-button');
     const spinResultDisplayArea = document.getElementById('spin-result-display-area');
-    const fullscreenButton = document.getElementById('fullscreen-button');
-    const zoomButton = document.getElementById('zoom-button');
+    
 
     // --- Configuration ---
     const wheelColors = [
@@ -528,22 +527,25 @@ document.addEventListener('DOMContentLoaded', () => {
         wheelItems.sort((a, b) => a.name.localeCompare(b.name));
         syncTextareaWithWheelItems();
     }
+}
 
-    // Toggles fullscreen mode for the document
-    function toggleFullScreen() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen();
-        } else if (document.exitFullscreen) {
-            document.exitFullscreen();
-        }
-    }
-
-    // Toggles zoom effect on the spinner wheel
-    function toggleZoom() {
-        if (spinnerWheel) {
-            spinnerWheel.classList.toggle('zoomed');
-            // Re-render the wheel after zoom to adjust text position if necessary
-            generateWheel();
+    else {
+                currentMagnifiedSegmentCtx.clearRect(0, 0, currentMagnifiedSegmentCanvas.width, currentMagnifiedSegmentCanvas.height);
+                currentMagnifiedSegmentCtx.fillStyle = '#fff';
+                currentMagnifiedSegmentCtx.font = '24px Arial';
+                currentMagnifiedSegmentCtx.textAlign = 'center';
+                currentMagnifiedSegmentCtx.textBaseline = 'middle';
+                currentMagnifiedSegmentCtx.fillText('Spin to see result!', currentMagnifiedSegmentCanvas.width / 2, currentMagnifiedSegmentCanvas.height / 2);
+            }
+            // Re-attach event listeners since elements are now local to function scope
+            currentMagnifiedSegmentCloseButton.onclick = () => { currentMagnifiedSegmentModal.classList.add('hidden'); };
+            currentMagnifiedSegmentModal.onclick = (event) => {
+                if (event.target === currentMagnifiedSegmentModal) {
+                    currentMagnifiedSegmentModal.classList.add('hidden');
+                }
+            };
+        } else {
+            console.error('One or more magnified segment modal elements not found when toggleZoom was called.');
         }
     }
 
