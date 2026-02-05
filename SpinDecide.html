@@ -97,13 +97,17 @@
             </div>
         </div>
         <!-- Right Sidebar: Entries -->
-                    <aside class="flex-1 min-w-[360px] max-w-[420px] bg-white dark:bg-[#1a262e] border-l border-slate-200 dark:border-[#233948] p-6 flex flex-col gap-6">
-                        <!-- Toggle for Ratio Free Mode -->
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-bold">Ratio Free Mode</p>
-                                <p id="ratio-free-desc" class="text-xs text-slate-500">Define custom ratios for entries</p>
-                            </div>
+                            <aside class="flex-1 min-w-[360px] max-w-[420px] bg-white dark:bg-[#1a262e] border-l border-slate-200 dark:border-[#233948] p-6 flex flex-col gap-6">
+                                <!-- New Spin Result Display Area -->
+                                <div id="spin-result-display-area" class="text-center p-4 rounded-lg bg-primary/10 text-primary text-xl font-bold hidden">
+                                    <!-- Spin result will appear here -->
+                                </div>
+                                <!-- Toggle for Ratio Free Mode -->
+                                <div class="flex items-center justify-between">
+                                    <div class="text-left">
+                                        <p class="text-sm font-bold">Ratio Free Mode</p>
+                                        <p id="ratio-free-desc" class="text-xs text-slate-500">Define custom ratios for entries</p>
+                                    </div>
                             <div id="ratio-free-mode-toggle" data-toggled="false" class="w-10 h-5 bg-primary/30 rounded-full relative cursor-pointer toggle-track">
                                 <div class="absolute top-0.5 size-4 bg-white rounded-full shadow-sm toggle-switch-handle transition-all duration-300"></div>
                             </div>
@@ -128,11 +132,19 @@
                         <!-- Single Entry Input (initially hidden) -->
                         <div id="single-entry-input-container" class="hidden">
                             <input type="text" id="single-entry-input" class="w-full p-4 rounded-xl border-2 border-slate-200 dark:border-[#233948] bg-background-light dark:bg-background-dark focus:border-primary focus:ring-0 text-base font-medium" placeholder="Enter one entry">
+                            <button id="single-entry-add-button" class="mt-3 flex items-center justify-center gap-2 rounded-full h-12 bg-primary text-white text-base font-bold shadow-md shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] transition-all hidden w-full">
+                                <span class="material-symbols-outlined">add</span>
+                                + Add Entry
+                            </button>
+                        </div>
+                        <!-- Individual Entry List Container -->
+                        <div id="single-entry-list-container" class="flex flex-col gap-2 mt-4 hidden">
+                            <!-- Entries will be dynamically added here -->
                         </div>
         
                         <div class="flex-1 flex flex-col gap-4">
                             <div class="relative flex-1">
-                                <textarea id="entries-textarea" class="w-full h-full min-h-[400px] p-4 rounded-xl border-2 border-slate-200 dark:border-[#233948] bg-background-light dark:bg-background-dark focus:border-primary focus:ring-0 text-base font-medium resize-none transition-all" placeholder="Type entries here..."></textarea>
+                                <textarea id="entries-textarea" class="w-full h-[300px] p-4 rounded-xl border-2 border-slate-200 dark:border-[#233948] bg-background-light dark:bg-background-dark focus:border-primary focus:ring-0 text-base font-medium resize-none transition-all" placeholder="Type entries here..."></textarea>
                                 <div id="entries-count" class="absolute bottom-4 right-4 bg-primary/20 text-primary text-xs font-bold px-2 py-1 rounded-full">
                                     0 Entries
                                 </div>
@@ -157,10 +169,6 @@
                                 </button>
                             </div>
                             <!-- New Add button for Single Entry Mode -->
-                            <button id="add-single-entry-button" class="flex items-center justify-center gap-2 rounded-full h-14 bg-primary text-white text-base font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all hidden">
-                                <span class="material-symbols-outlined">add</span>
-                                + Add Entry
-                            </button>
                         </div>
                         <!-- Secondary Actions -->
                         <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200 dark:border-[#233948]">

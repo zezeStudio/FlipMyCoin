@@ -27,6 +27,10 @@ This document outlines the Spin to Decide feature within the CoinFlip Pro projec
 
 ## Current Changes
 
+### New Global State: `wheelItems`
+- **Description:** A new global array `let wheelItems = [];` has been added at the very top of `SpinDecide.js`. This variable is intended to serve as a central state management mechanism for the items currently displayed and processed by the roulette wheel, allowing for easier manipulation and access across different functions.
+- **Update: Global `wheelItems` Synchronization:** The `wheelItems` global array is now explicitly updated with the latest entries by calling `wheelItems = getEntries();` at the end of the `updateEntriesTextarea()` function. This ensures that `wheelItems` always reflects the current state of the entries being displayed and used by the wheel.
+
 ### Bug Fix: Entry Truncation Reset
 - **Description:** Previously, when in "Ratio Free Mode" and exceeding the `MAX_ENTRIES` limit, an alert would appear. Upon dismissing this alert, the `entriesTextarea` content would unexpectedly reset (clear) instead of truncating to the allowed number of entries. This was due to an incorrect mapping operation when re-assigning the `entriesTextarea.value` after truncation.
 - **Fix:** The logic in `SpinDecide.js`'s `entriesTextarea.addEventListener('input', ...)` was corrected. Instead of attempting to remap `truncatedEntries` (which are already raw strings) to preserve ratio information (which was causing `undefined` values), the `entriesTextarea.value` is now directly assigned `truncatedEntries.join('\n')`. This ensures that when entries exceed the limit, only the excess entries are removed, and the remaining valid entries (with their ratios) are correctly preserved and displayed.
@@ -50,6 +54,15 @@ This document outlines the Spin to Decide feature within the CoinFlip Pro projec
     - **Fill Style:** The fill style for text is `white`.
     - **Updated Empty Wheel Background:** The `spinnerWheel.style.background` is set to `none` to allow the canvas to render the wheel when entries exist. If there are no entries, a default `conic-gradient(#1e293b, #334155)` is applied to the `spinnerWheel`.
     - **Total Percentage Handling:** Added a fallback to equal slices if the total percentage of `items` is zero while entries exist, preventing division by zero errors.
+
+### `renderSingleEntryList()` Function Refactor for Pill-Shaped, Horizontal Entry Display
+- **Description:** The `renderSingleEntryList()` function in `SpinDecide.js` has been significantly refactored to change how individual entries are displayed in "Single Entry Mode." Entries are now rendered as compact, pill-shaped elements that flow horizontally and wrap to the next line if they exceed the available width.
+- **Changes Implemented:**
+    - **Container as Flex-Wrap:** `singleEntryListContainer` now has `flex`, `flex-wrap`, `gap-2`, and `mt-2` classes to enable horizontal flow with spacing and wrapping.
+    - **Pill-Shaped Entry Wrapper:** Each individual entry is enclosed in a new `div` (`entryWrapper`) with `flex`, `items-center`, `rounded-full`, `px-2`, `py-0.5` classes, giving it a pill-shaped appearance with more compact padding.
+    - **Smaller Entry Text Font:** The `entryWrapper` now applies `text-sm` to make the entry name text smaller.
+    - **Smaller Delete Icon and Compact Spacing:** The delete button icon has been reduced to `text-xs` (even smaller) and its padding (`p-0.5`) and margin (`ml-1`) have been adjusted to be more compact and fit within the pill shape.
+    - **`whitespace-nowrap` for Entry Text:** The `entryWrapper` includes `whitespace-nowrap` to prevent individual entry names from wrapping within their own pill-shaped container.
 
 ## Next Steps
 - User to verify the updated roulette wheel's appearance, including the new color scheme, font, and text layout. Pay close attention to how 'Ratio Free Mode' visually impacts the wheel slices.
