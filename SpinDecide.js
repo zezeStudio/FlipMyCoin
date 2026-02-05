@@ -2,6 +2,7 @@
 console.log("SpinDecide.js loaded");
 
 let wheelItems = [];
+let rouletteHistory = {}; // For statistics and history
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Elements ---
@@ -16,11 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const entriesCountElem = document.getElementById('entries-count');
     const spinButton = document.getElementById('spin-button');
     const shuffleButton = document.getElementById('shuffle-button');
-    const sortButton = document.getElementById('sort-button'); // Corrected typo here
+    const sortButton = document.getElementById('sort-button');
     
     const confirmEntriesButton = document.getElementById('confirm-entries-button'); 
-    const singleEntryAddButton = document.getElementById('single-entry-add-button'); // New button
-    const singleEntryListContainer = document.getElementById('single-entry-list-container'); // New container
+    const singleEntryAddButton = document.getElementById('single-entry-add-button');
+    const singleEntryListContainer = document.getElementById('single-entry-list-container');
 
     const singleEntryModeToggle = document.getElementById('single-entry-mode-toggle');
     const singleEntryInputContainer = document.getElementById('single-entry-input-container');
@@ -33,6 +34,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const spinResultText = document.getElementById('spin-result-text');
     const spinResultCloseButton = document.getElementById('spin-result-close-button');
     const spinResultDisplayArea = document.getElementById('spin-result-display-area');
+
+    // History and Statistics Elements
+    const historyButton = document.getElementById('history-button');
+    const historyModal = document.getElementById('history-modal');
+    const historyModalCloseButton = document.getElementById('history-modal-close-button');
+    const statsTotalSpins = document.getElementById('stats-total-spins');
+    const statsList = document.getElementById('stats-list');
+    const statsResetButton = document.getElementById('stats-reset-button');
     
 
     // --- Configuration ---
@@ -56,10 +65,64 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRotation = 0; // To keep track of the wheel's current rotation for smooth transitions
     let isConfirmed = false; // New state variable for entry confirmation
 
+    // --- History & Statistics Functions ---
+    function getSetKey(items) {
+        if (!items || items.length === 0) {
+            return '';
+        }
+        return items
+            .map(i => i.name)
+            .sort() // Sort alphabetically to treat same set of items as one key
+            .join('|');
+    }
+
+    function updateStatsUI() {
+        const validEntries = getValidWheelEntries();
+        const key = getSetKey(validEntries);
+        const stats = rouletteHistory[key];
+
+        if (!stats || stats.total === 0) {
+            statsTotalSpins.textContent = '0';
+            statsList.innerHTML = `<p class="text-center text-slate-500 p-4">No spins recorded for this set of entries yet.</p>`;
+            return;
+        }
+
+        statsTotalSpins.textContent = stats.total;
+        
+        // Sort entries by win count, descending
+        const sortedEntries = validEntries
+            .map(entry => ({
+                name: entry.name,
+                count: stats.results[entry.name] || 0
+            }))
+            .sort((a, b) => b.count - a.count);
+
+        statsList.innerHTML = sortedEntries.map(entry => {
+            const percentage = ((entry.count / stats.total) * 100).toFixed(1);
+            return `
+                <div class="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                    <div class="flex-1 truncate font-semibold">${entry.name}</div>
+                    <div class="w-1/4 text-center text-primary font-bold">${entry.count} wins</div>
+                    <div class="w-1/4 text-right text-slate-500">${percentage}%</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function resetCurrentStats() {
+        const key = getSetKey(getValidWheelEntries());
+        if (rouletteHistory[key]) {
+            delete rouletteHistory[key];
+            localStorage.setItem('rouletteHistory', JSON.stringify(rouletteHistory));
+            updateStatsUI();
+            alert('Statistics for the current set of entries have been reset.');
+        } else {
+            alert('There are no statistics to reset for the current entries.');
+        }
+    }
+
+
     // --- Helper Functions ---
-    // This function parses a raw textarea string into an array of {name, ratio} objects.
-    // It is designed to be called when the textarea content changes.
-    // It does NOT filter out invalid entries; it just parses what's there.
     function parseTextareaToWheelItems(textareaValue) {
         const rawLines = textareaValue.split('\n'); // DO NOT TRIM YET
         const isRatioFreeMode = ratioFreeModeToggle.dataset.toggled === 'true';
@@ -207,9 +270,13 @@ document.addEventListener('DOMContentLoaded', () => {
         generateWheel();
         updateTotalPercentageDisplay();
         
-        // New: Update the individual entry list if in Single Entry Mode
         if (isSingleEntryMode) {
             renderSingleEntryList();
+        }
+
+        // Update stats UI if modal is open
+        if (historyModal && !historyModal.classList.contains('hidden')) {
+            updateStatsUI();
         }
     }
 
@@ -247,8 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Disable/Enable confirm entries button based on max entry count
-        // Only disable if numEntries > MAX_ENTRIES, not if numEntries == MAX_ENTRIES
-        if (numEntries > MAX_ENTRIES) { // Corrected: numEntries >= MAX_ENTRIES for preventing add, > MAX_ENTRIES for disabling confirm button
+        if (numEntries > MAX_ENTRIES) { 
              confirmEntriesButton.disabled = true;
              confirmEntriesButton.classList.add('opacity-50', 'cursor-not-allowed');
         } else {
@@ -314,53 +380,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         spinnerWheel.style.background = 'none';
 
-        let currentStartAngleDegrees = 0; // Use degrees for internal calculations
+        let currentStartAngleDegrees = 0;
 
         const total = items.reduce((s, item) => s + (item.percent || 0), 0);
-        // Handle case where total is 0 to avoid division by zero
-        // This scenario should ideally be prevented by getEntries() filtering or validation
         if (total === 0 && count > 0) {
             console.warn("Total percentage is zero, but entries exist. Displaying equal slices.");
-            items.forEach(item => item.percent = 1); // Fallback to equal slices
-            // Recalculate total if we forced equal slices
+            items.forEach(item => item.percent = 1);
             total = count;
         }
 
 
         items.forEach((item, i) => {
-            const sliceAngleDegrees = (item.percent / total) * 360; // Calculate slice angle in degrees
+            const sliceAngleDegrees = (item.percent / total) * 360;
             const endAngleDegrees = currentStartAngleDegrees + sliceAngleDegrees;
 
-            // Convert angles to radians for ctx.arc
             const startAngleRadians = currentStartAngleDegrees * (Math.PI / 180);
             const endAngleRadians = endAngleDegrees * (Math.PI / 180);
 
-            // 🎨 영역
             ctx.beginPath();
             ctx.moveTo(center, center);
-            ctx.arc(center, center, radius, startAngleRadians, endAngleRadians); // Use radians for arc
+            ctx.arc(center, center, radius, startAngleRadians, endAngleRadians);
             ctx.closePath();
 
-            // Use the HSL color scheme provided by the user
-            ctx.fillStyle = wheelColors[i % wheelColors.length]; // Cycle through defined wheel colors
+            ctx.fillStyle = wheelColors[i % wheelColors.length];
             ctx.fill();
 
-            // ===== 텍스트 중앙 정확 배치 =====
             const midAngleDegrees = currentStartAngleDegrees + sliceAngleDegrees / 2;
-            const midAngleRadians = midAngleDegrees * (Math.PI / 180); // Convert mid angle to radians for trig functions
+            const midAngleRadians = midAngleDegrees * (Math.PI / 180);
             const textR = radius * 0.65;
 
             ctx.save();
             ctx.translate(
-                center + Math.cos(midAngleRadians) * textR, // Use radians for trig
-                center + Math.sin(midAngleRadians) * textR  // Use radians for trig
+                center + Math.cos(midAngleRadians) * textR,
+                center + Math.sin(midAngleRadians) * textR
             );
 
-            ctx.rotate(midAngleRadians); // Use radians for rotation
+            ctx.rotate(midAngleRadians);
 
-            // 아래 반원은 뒤집기
-            if (midAngleDegrees > 90 && midAngleDegrees < 270) { // Check in degrees
-                ctx.rotate(Math.PI); // Rotate by 180 degrees (PI radians)
+            if (midAngleDegrees > 90 && midAngleDegrees < 270) {
+                ctx.rotate(Math.PI);
             }
 
             const baseSize = radius / 10;
@@ -371,25 +429,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             ctx.fillText(item.text, 0, 0);
 
-            // Add underline for '6' and '9'
             if (item.text === '6' || item.text === '9') {
                 const textWidth = ctx.measureText(item.text).width;
-                const underlineThickness = baseSize / 10; // 10% of font size for thickness
-                const underlineOffset = baseSize * 0.75; // Offset below baseline
+                const underlineThickness = baseSize / 10;
+                const underlineOffset = baseSize * 0.75;
 
                 ctx.save();
                 ctx.beginPath();
-                // Adjust position for underline: move to the start of text, then down by offset
                 ctx.moveTo(-textWidth / 2, underlineOffset);
                 ctx.lineTo(textWidth / 2, underlineOffset);
                 ctx.lineWidth = underlineThickness;
-                ctx.strokeStyle = ctx.fillStyle; // Same color as text
+                ctx.strokeStyle = ctx.fillStyle;
                 ctx.stroke();
                 ctx.restore();
             }
             ctx.restore();
 
-            currentStartAngleDegrees = endAngleDegrees; // Update for next segment
+            currentStartAngleDegrees = endAngleDegrees;
         });
     }
 
@@ -402,7 +458,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Check confirmation state
         if (!isConfirmed) {
             alert('Please confirm your entries before spinning the wheel.');
             return;
@@ -411,12 +466,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const isRatioFreeMode = ratioFreeModeToggle.dataset.toggled === 'true';
         const isSingleEntryMode = singleEntryModeToggle.dataset.toggled === 'true';
 
-        // Force equal ratios if in Single Entry Mode for spinning logic
         if (isSingleEntryMode) {
             entries = entries.map(entry => ({ ...entry, ratio: 1 }));
         }
         
-        // Only check for 100% total if Ratio Free Mode is ON and Single Entry Mode is OFF
         if (isRatioFreeMode && !isSingleEntryMode) {
             const totalPercentage = entries.reduce((sum, entry) => sum + entry.ratio, 0);
             if (totalPercentage !== 100) {
@@ -450,64 +503,73 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const anglePerRatioUnit = 360 / totalRatio; // Angle per unit of ratio
+        const anglePerRatioUnit = 360 / totalRatio;
 
-        // Calculate the exact angle range for the winning segment
         let winningSegmentStartAngle = 0;
         for (let i = 0; i < winningIndex; i++) {
             winningSegmentStartAngle += entries[i].ratio * anglePerRatioUnit;
         }
         const winningSegmentEndAngle = winningSegmentStartAngle + (winningEntry.ratio * anglePerRatioUnit);
 
-        // Choose a random angle within the winning segment for the pointer to land on
-        // This ensures the random angle is strictly within the segment
         const randomAngleWithinSegment = Math.random() * (winningEntry.ratio * anglePerRatioUnit);
         const targetLandingAngle = winningSegmentStartAngle + randomAngleWithinSegment;
 
-        const fullRotationsForEffect = 5; // Ensure at least 5 full spins
-        // Calculate the base rotation needed to bring the targetLandingAngle under the 12 o'clock pointer (270 degrees from 3 o'clock)
+        const fullRotationsForEffect = 5;
         let rotationToAlign = 270 - targetLandingAngle;
-        // Normalize rotationToAlign to be between 0 and 360 degrees
         rotationToAlign = (rotationToAlign % 360 + 360) % 360; 
         
-        // Add full rotations for visual effect and current wheel position
         const finalRotation = currentRotation + (fullRotationsForEffect * 360) + rotationToAlign - (currentRotation % 360);
 
-        // Generate a random spin duration
-        const spinDuration = Math.random() * (MAX_SPIN_DURATION - MIN_SPIN_DURATION) + MIN_SPIN_DURATION; // in ms
-        const spinDurationSeconds = spinDuration / 1000; // in seconds
+        const spinDuration = Math.random() * (MAX_SPIN_DURATION - MIN_SPIN_DURATION) + MIN_SPIN_DURATION;
+        const spinDurationSeconds = spinDuration / 1000;
 
         spinnerWheel.style.transition = `transform ${spinDurationSeconds}s cubic-bezier(0.25, 0.1, 0.25, 1)`;
         spinnerWheel.style.transform = `rotate(${finalRotation}deg)`;
-        currentRotation = finalRotation; // Accumulate rotation for next spin
+        currentRotation = finalRotation;
 
         setTimeout(() => {
-            let formattedWinningEntry = winningEntry.name;
-            if (winningEntry.name === '6' || winningEntry.name === '9') {
-                formattedWinningEntry = `<u>${winningEntry.name}</u>`;
+            // --- Update History & Statistics ---
+            const key = getSetKey(entries);
+            if (!rouletteHistory[key]) {
+                rouletteHistory[key] = { total: 0, results: {} };
+            }
+            rouletteHistory[key].total++;
+            const winnerName = winningEntry.name;
+            rouletteHistory[key].results[winnerName] = (rouletteHistory[key].results[winnerName] || 0) + 1;
+            localStorage.setItem('rouletteHistory', JSON.stringify(rouletteHistory));
+            // --- End Update ---
+
+            let formattedWinningEntry = winnerName;
+            if (winnerName === '6' || winnerName === '9') {
+                formattedWinningEntry = `<u>${winnerName}</u>`;
             }
 
             if (spinResultText) {
-                spinResultText.innerHTML = formattedWinningEntry; // Use innerHTML
+                spinResultText.innerHTML = formattedWinningEntry;
             } else {
                 console.error("Error: spinResultText element not found in setTimeout callback.");
             }
             spinResultModal.classList.remove('hidden');
             
-            // NEW: Update the new display area
             if (spinResultDisplayArea) {
-                let formattedDisplayEntry = winningEntry.name;
-                if (winningEntry.name === '6' || winningEntry.name === '9') {
-                    formattedDisplayEntry = `<u>${winningEntry.name}</u>`;
+                let formattedDisplayEntry = winnerName;
+                if (winnerName === '6' || winnerName === '9') {
+                    formattedDisplayEntry = `<u>${winnerName}</u>`;
                 }
-                spinResultDisplayArea.innerHTML = `Winner: ${formattedDisplayEntry}`; // Use innerHTML
+                spinResultDisplayArea.innerHTML = `Winner: ${formattedDisplayEntry}`;
                 spinResultDisplayArea.classList.remove('hidden');
             }
             
             spinButton.disabled = false;
             spinButton.classList.remove('opacity-50', 'cursor-not-allowed');
             spinnerWheel.style.transition = 'none';
-        }, spinDuration); // Match animation duration
+
+            // Update stats UI if modal is open
+            if (historyModal && !historyModal.classList.contains('hidden')) {
+                updateStatsUI();
+            }
+
+        }, spinDuration);
     }
 
     function shuffleEntries() {
@@ -527,36 +589,12 @@ document.addEventListener('DOMContentLoaded', () => {
         wheelItems.sort((a, b) => a.name.localeCompare(b.name));
         syncTextareaWithWheelItems();
     }
-}
 
-    else {
-                currentMagnifiedSegmentCtx.clearRect(0, 0, currentMagnifiedSegmentCanvas.width, currentMagnifiedSegmentCanvas.height);
-                currentMagnifiedSegmentCtx.fillStyle = '#fff';
-                currentMagnifiedSegmentCtx.font = '24px Arial';
-                currentMagnifiedSegmentCtx.textAlign = 'center';
-                currentMagnifiedSegmentCtx.textBaseline = 'middle';
-                currentMagnifiedSegmentCtx.fillText('Spin to see result!', currentMagnifiedSegmentCanvas.width / 2, currentMagnifiedSegmentCanvas.height / 2);
-            }
-            // Re-attach event listeners since elements are now local to function scope
-            currentMagnifiedSegmentCloseButton.onclick = () => { currentMagnifiedSegmentModal.classList.add('hidden'); };
-            currentMagnifiedSegmentModal.onclick = (event) => {
-                if (event.target === currentMagnifiedSegmentModal) {
-                    currentMagnifiedSegmentModal.classList.add('hidden');
-                }
-            };
-        } else {
-            console.error('One or more magnified segment modal elements not found when toggleZoom was called.');
-        }
-    }
-
-    // Function for the new + Add Entry button (when Single Entry Mode is ON)
     function addSingleEntry() {
-        // Use wheelItems.length directly as wheelItems is the source of truth for all entries
         if (wheelItems.length >= MAX_ENTRIES) {
             alert(`You can add a maximum of ${MAX_ENTRIES} entries.`);
             return;
         }
-        // If confirmed, cannot add new entries
         if (isConfirmed) {
             alert('Please cancel confirmation to add new entries.');
             return;
@@ -565,13 +603,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let newEntryText = singleEntryInput.value.trim();
         if (newEntryText) {
             let newEntryName = newEntryText;
-            // In Single Entry Mode, ratio is always 1, regardless of Ratio Free Mode state.
-            // We just need to ensure to parse only the name part if user includes ':'
             if (newEntryText.includes(':')) {
                 newEntryName = newEntryText.split(':')[0].trim();
             }
 
-            wheelItems.push({ name: newEntryName, ratio: 1 }); // Always ratio 1 in single entry mode
+            wheelItems.push({ name: newEntryName, ratio: 1 });
             singleEntryInput.value = '';
             syncTextareaWithWheelItems();
             singleEntryInput.focus();
@@ -580,18 +616,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Function for the Confirm / Cancel button
     function handleConfirmEntries() {
         const entries = getValidWheelEntries();
         const numEntries = entries.length;
 
-        if (!isConfirmed) { // If currently in 'confirm' state (i.e., not yet confirmed)
+        if (!isConfirmed) {
             if (numEntries < MIN_ENTRIES) {
                 alert(`Please add at least ${MIN_ENTRIES} entries before confirming.`);
                 return;
             }
 
-            // If Ratio Free Mode is ON and not in Single Entry Mode, check total percentage
             const isRatioFreeMode = ratioFreeModeToggle.dataset.toggled === 'true';
             const isSingleEntryMode = singleEntryModeToggle.dataset.toggled === 'true';
             if (isRatioFreeMode && !isSingleEntryMode) {
@@ -603,11 +637,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        isConfirmed = !isConfirmed; // Toggle confirmation state
+        isConfirmed = !isConfirmed;
 
-        if (isConfirmed) { // State becomes CONFIRMED
+        if (isConfirmed) {
             entriesTextarea.readOnly = true;
-            entriesTextarea.style.backgroundColor = 'var(--background-light)'; // Indicate read-only visually
+            entriesTextarea.style.backgroundColor = 'var(--background-light)';
             entriesTextarea.style.opacity = '0.7';
 
             shuffleButton.disabled = true;
@@ -619,13 +653,11 @@ document.addEventListener('DOMContentLoaded', () => {
             confirmEntriesButton.classList.remove('bg-primary');
             confirmEntriesButton.classList.add('bg-red-500');
 
-            // Only enable spin button if entries are valid
             if (entries.length >= MIN_ENTRIES) {
                 spinButton.disabled = false; 
                 spinButton.classList.remove('opacity-50', 'cursor-not-allowed');
             }
-        } else { // State becomes NOT CONFIRMED (cancelled)
-            // If Single Entry Mode is ON, keep textarea read-only, otherwise make it editable
+        } else {
             const isSingleEntryMode = singleEntryModeToggle.dataset.toggled === 'true';
             if (!isSingleEntryMode) {
                 entriesTextarea.readOnly = false;
@@ -641,22 +673,20 @@ document.addEventListener('DOMContentLoaded', () => {
             confirmEntriesButton.classList.remove('bg-red-500');
             confirmEntriesButton.classList.add('bg-primary');
 
-            spinButton.disabled = true; // Disable spin button
+            spinButton.disabled = true;
             spinButton.classList.add('opacity-50', 'cursor-not-allowed');
         }
-        updateEntriesCount(); // Re-evaluate spin button state based on entry count and confirmation status
-        generateWheel(); // Re-generate wheel for visual updates if any
-        updateTotalPercentageDisplay(); // Update total percentage display
+        updateEntriesCount();
+        generateWheel();
+        updateTotalPercentageDisplay();
     }
 
 
     // --- Toggle Logic ---
     function toggleSingleEntryMode() {
-        // If entries were confirmed, reset the confirmation state when toggling mode
         if (isConfirmed) {
             resetConfirmButtonState();
         }
-        // Clear and hide the spin result display area when mode is toggled
         if (spinResultDisplayArea) {
             spinResultDisplayArea.textContent = '';
             spinResultDisplayArea.classList.add('hidden');
@@ -674,73 +704,60 @@ document.addEventListener('DOMContentLoaded', () => {
         singleEntryInputContainer.classList.toggle('hidden', !newIsToggled);
         entriesTextarea.readOnly = newIsToggled;
 
-        // Toggle visibility of singleEntryAddButton and singleEntryListContainer
         singleEntryAddButton.classList.toggle('hidden', !newIsToggled);
-        singleEntryListContainer.classList.toggle('hidden', !newIsToggled); // This line is crucial for visibility
+        singleEntryListContainer.classList.toggle('hidden', !newIsToggled);
 
-        // Clear textarea content and internal wheelItems upon mode change
         entriesTextarea.value = '';
-        wheelItems = []; // Clear internal wheel items
+        wheelItems = [];
 
-        if (newIsToggled) { // Toggled to ON (single entry mode)
-            // Visually indicate read-only textarea
+        if (newIsToggled) {
             entriesTextarea.style.backgroundColor = 'var(--background-light)';
             entriesTextarea.style.opacity = '0.7';
             singleEntryInput.focus();
 
-            // When Single Entry Mode is ON, Ratio Free Mode is disabled and forced to OFF
-            // Check if Ratio Free Mode was ON before disabling it
             const wasRatioFreeModeOn = ratioFreeModeToggle.dataset.toggled === 'true';
             ratioFreeModeToggle.disabled = true;
-            ratioFreeModeToggle.dataset.toggled = 'false'; // Force OFF state
+            ratioFreeModeToggle.dataset.toggled = 'false';
             ratioFreeModeToggle.classList.remove('bg-primary');
             ratioFreeModeToggle.classList.add('bg-primary/30');
             ratioFreeModeToggle.querySelector('.toggle-switch-handle').classList.remove('translate-x-full');
-            document.getElementById('ratio-free-desc').textContent = 'Forced to equal proportions'; // Update description
-            singleEntryInput.placeholder = 'Enter one entry'; // Ratio Free Mode is off, so just name
-            totalPercentageDisplay.classList.add('hidden'); // Hide total percentage
+            document.getElementById('ratio-free-desc').textContent = 'Forced to equal proportions';
+            singleEntryInput.placeholder = 'Enter one entry';
+            totalPercentageDisplay.classList.add('hidden');
 
-            // Alert user if Ratio Free Mode was disabled
             if (wasRatioFreeModeOn) {
                 alert('Single Entry Mode is ON. Ratio Free Mode has been disabled.');
             }
 
-            // The 'wheelItems' will be empty from clearing the textarea, so re-sync
             syncTextareaWithWheelItems();
-            renderSingleEntryList(); // Render entries when entering Single Entry Mode
-        } else { // Toggled to OFF (multi-line mode)
+            renderSingleEntryList();
+        } else {
             entriesTextarea.style.backgroundColor = '';
             entriesTextarea.style.opacity = '1';
             entriesTextarea.focus();
 
-            // Enable Ratio Free Mode toggle and set to OFF state
             ratioFreeModeToggle.disabled = false;
-            ratioFreeModeToggle.dataset.toggled = 'false'; // Force OFF state
-            ratioFreeModeToggle.classList.remove('bg-primary'); // Visual off
-            ratioFreeModeToggle.classList.add('bg-primary/30'); // Visual off
-            ratioFreeModeToggle.querySelector('.toggle-switch-handle').classList.remove('translate-x-full'); // Visual off
-            document.getElementById('ratio-free-desc').textContent = 'Define custom ratios for entries'; // Restore description
+            ratioFreeModeToggle.dataset.toggled = 'false';
+            ratioFreeModeToggle.classList.remove('bg-primary');
+            ratioFreeModeToggle.classList.add('bg-primary/30');
+            ratioFreeModeToggle.querySelector('.toggle-switch-handle').classList.remove('translate-x-full');
+            document.getElementById('ratio-free-desc').textContent = 'Define custom ratios for entries';
             
-            // Set placeholder based on Ratio Free Mode status (which is now forced OFF)
             singleEntryInput.placeholder = 'Enter one entry';
             entriesTextarea.placeholder = 'Type entries here... (one per line)';
 
-            // confirmEntriesButton should always be visible, so explicitly show it here when exiting single entry mode
             confirmEntriesButton.classList.remove('hidden'); 
 
-            // The 'wheelItems' will be empty from clearing the textarea, so re-sync
             syncTextareaWithWheelItems();
-            singleEntryListContainer.innerHTML = ''; // Clear visual list when exiting Single Entry Mode
+            singleEntryListContainer.innerHTML = '';
         }
         generateWheel(); 
     }
 
     function toggleRatioFreeMode() {
-        // If entries were confirmed, reset the confirmation state when toggling mode
         if (isConfirmed) {
             resetConfirmButtonState();
         }
-        // Clear and hide the spin result display area when mode is toggled
         if (spinResultDisplayArea) {
             spinResultDisplayArea.textContent = '';
             spinResultDisplayArea.classList.add('hidden');
@@ -749,7 +766,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const isToggledBeforeClick = ratioFreeModeToggle.dataset.toggled === 'true';
         const newIsToggled = !isToggledBeforeClick;
 
-        // If Single Entry Mode is ON, this toggle is disabled, so return
         if (singleEntryModeToggle.dataset.toggled === 'true') {
             return;
         }
@@ -760,22 +776,18 @@ document.addEventListener('DOMContentLoaded', () => {
         ratioFreeModeToggle.classList.toggle('bg-primary/30', !newIsToggled);
         ratioFreeModeToggle.querySelector('.toggle-switch-handle').classList.toggle('translate-x-full', newIsToggled);
 
-        // Update entriesTextarea placeholder
-        const isSingleEntryMode = singleEntryModeToggle.dataset.toggled === 'true'; // Should be false here
-        if (!isSingleEntryMode) { // Only relevant if not in single entry mode (textarea is editable)
-            if (newIsToggled) { // Toggled to ON (ratio free mode)
+        const isSingleEntryMode = singleEntryModeToggle.dataset.toggled === 'true';
+        if (!isSingleEntryMode) {
+            if (newIsToggled) {
                 entriesTextarea.placeholder = 'Enter Name:Percentage (e.g., "Apple:20", "Banana:30")';
-            } else { // Toggled to OFF (equal ratio mode)
+            } else {
                 entriesTextarea.placeholder = 'Type entries here... (one per line)';
             }
         }
         
-        // Clear textarea content and internal wheelItems upon mode change
         entriesTextarea.value = '';
-        wheelItems = []; // Clear internal wheelItems
+        wheelItems = [];
 
-        // Re-render the wheel and update textarea display based on new mode
-        // After clearing, wheelItems is empty, so re-sync
         syncTextareaWithWheelItems();
     }
 
@@ -801,20 +813,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    if (historyButton) {
+        historyButton.addEventListener('click', () => {
+            updateStatsUI();
+            historyModal.classList.remove('hidden');
+        });
+    }
+    if (historyModalCloseButton) {
+        historyModalCloseButton.addEventListener('click', () => {
+            historyModal.classList.add('hidden');
+        });
+    }
+    if (historyModal) {
+        historyModal.addEventListener('click', (event) => {
+            if (event.target === historyModal) {
+                historyModal.classList.add('hidden');
+            }
+        });
+    }
+    if (statsResetButton) {
+        statsResetButton.addEventListener('click', resetCurrentStats);
+    }
+
+
     if (entriesTextarea) {
         entriesTextarea.addEventListener('input', () => {
             let currentEntries = entriesTextarea.value.split('\n');
             let nonEmptyEntries = currentEntries.filter(entry => entry.trim() !== '');
 
             if (nonEmptyEntries.length > MAX_ENTRIES) {
-                // Truncate entries to MAX_ENTRIES
                 let truncatedEntries = nonEmptyEntries.slice(0, MAX_ENTRIES);
-                // Preserve ratio information if available
-                const isRatioFreeMode = ratioFreeModeToggle.dataset.toggled === 'true';
                 entriesTextarea.value = truncatedEntries.join('\n');
 
                 alert(`You can only have a maximum of ${MAX_ENTRIES} active entries. Excess entries have been removed.`);
-                wheelItems = parseTextareaToWheelItems(entriesTextarea.value); // Update wheelItems after truncating textarea
+                wheelItems = parseTextareaToWheelItems(entriesTextarea.value);
                 syncTextareaWithWheelItems();
                 return; 
             }
@@ -866,71 +898,62 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Initial Setup ---
-    // Get initial toggle states from HTML data-toggled attributes
+    rouletteHistory = JSON.parse(localStorage.getItem('rouletteHistory')) || {};
+
     let initialSingleEntryModeToggled = singleEntryModeToggle.dataset.toggled === 'true';
     let initialRatioFreeModeToggled = ratioFreeModeToggle.dataset.toggled === 'true';
 
-    // Initialize Single Entry Mode toggle visuals
     singleEntryModeToggle.classList.toggle('bg-primary', initialSingleEntryModeToggled);
     singleEntryModeToggle.classList.toggle('bg-primary/30', !initialSingleEntryModeToggled);
     singleEntryModeToggle.querySelector('.toggle-switch-handle').classList.toggle('translate-x-full', initialSingleEntryModeToggled);
 
-    // Initialize Ratio Free Mode toggle visuals
     ratioFreeModeToggle.classList.toggle('bg-primary', initialRatioFreeModeToggled);
     ratioFreeModeToggle.classList.toggle('bg-primary/30', !initialRatioFreeModeToggled);
     ratioFreeModeToggle.querySelector('.toggle-switch-handle').classList.toggle('translate-x-full', initialRatioFreeModeToggled);
 
 
-    // Apply initial single entry mode state
     singleEntryInputContainer.classList.toggle('hidden', !initialSingleEntryModeToggled);
     entriesTextarea.readOnly = initialSingleEntryModeToggled;
-    singleEntryAddButton.classList.toggle('hidden', !initialSingleEntryModeToggled); // Initial visibility for new add button
-    singleEntryListContainer.classList.toggle('hidden', !initialSingleEntryModeToggled); // Initial visibility for entry list
+    singleEntryAddButton.classList.toggle('hidden', !initialSingleEntryModeToggled);
+    singleEntryListContainer.classList.toggle('hidden', !initialSingleEntryModeToggled);
 
-    if (initialSingleEntryModeToggled) { // Single Entry Mode is ON
+    if (initialSingleEntryModeToggled) {
         entriesTextarea.style.backgroundColor = 'var(--background-light)';
         entriesTextarea.style.opacity = '0.7';
 
         ratioFreeModeToggle.disabled = true;
-        ratioFreeModeToggle.dataset.toggled = 'false'; // Ensure it's OFF
+        ratioFreeModeToggle.dataset.toggled = 'false';
         ratioFreeModeToggle.classList.remove('bg-primary');
         ratioFreeModeToggle.classList.add('bg-primary/30');
         ratioFreeModeToggle.querySelector('.toggle-switch-handle').classList.remove('translate-x-full');
         document.getElementById('ratio-free-desc').textContent = 'Forced to equal proportions';
         singleEntryInput.placeholder = 'Enter one entry';
         totalPercentageDisplay.classList.add('hidden');
-        renderSingleEntryList(); // Render entries initially if in Single Entry Mode
-        // confirmEntriesButton is always visible in its original position.
-    } else { // Single Entry Mode is OFF (multi-line mode)
+        renderSingleEntryList();
+    } else {
         entriesTextarea.style.backgroundColor = '';
         entriesTextarea.style.opacity = '1';
         ratioFreeModeToggle.disabled = false;
         document.getElementById('ratio-free-desc').textContent = 'Define custom ratios for entries';
         
-        // When Single Entry Mode is OFF, Ratio Free Mode must be OFF by default
-        ratioFreeModeToggle.dataset.toggled = 'false'; // Force OFF state
+        ratioFreeModeToggle.dataset.toggled = 'false';
         ratioFreeModeToggle.classList.remove('bg-primary');
         ratioFreeModeToggle.classList.add('bg-primary/30');
         ratioFreeModeToggle.querySelector('.toggle-switch-handle').classList.remove('translate-x-full');
 
-        // Set placeholder based on Ratio Free Mode status (which is now forced OFF)
         singleEntryInput.placeholder = 'Enter one entry';
         entriesTextarea.placeholder = 'Type entries here... (one per line)';
-        // confirmEntriesButton is always visible now.
     }
-    // Initialize isConfirmed state
     isConfirmed = false;
-    // Initial disable spin button
     spinButton.disabled = true;
     spinButton.classList.add('opacity-50', 'cursor-not-allowed');
 
-    // Make sure shuffle/sort buttons are enabled initially
     shuffleButton.disabled = false;
     sortButton.disabled = false;
     shuffleButton.classList.remove('opacity-50', 'cursor-not-allowed');
     sortButton.classList.remove('opacity-50', 'cursor-not-allowed');
 
 
-    wheelItems = parseTextareaToWheelItems(entriesTextarea.value); // Initialize wheelItems from textarea content
-    syncTextareaWithWheelItems(); // This will call generateWheel, updateEntriesCount, updateTotalPercentageDisplay
+    wheelItems = parseTextareaToWheelItems(entriesTextarea.value);
+    syncTextareaWithWheelItems();
 });
