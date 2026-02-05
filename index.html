@@ -4,7 +4,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Coin Flip Main Simulator</title>
+<title>Coin Flip Simulator - Fair & Transparent | CoinFlip Pro</title>
+<meta name="description" content="A free, fair, and transparent online coin flip simulator. Get instant heads or tails results with our random coin flipper, track statistics, and learn about probability. Perfect for games, decisions, and more."/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -49,12 +50,18 @@
 <nav class="flex items-center gap-9">
 <a id="guide-nav-link" class="text-slate-600 dark:text-white/80 hover:text-primary dark:hover:text-white text-sm font-medium leading-normal transition-colors" href="#">Coin Flip guide</a>
 <a class="text-slate-600 dark:text-white/80 hover:text-primary dark:hover:text-white text-sm font-medium leading-normal transition-colors" href="SpinDecide.html">SpinDecide</a>
-<a class="text-slate-600 dark:text-white/80 hover:text-primary dark:hover:text-white text-sm font-medium leading-normal transition-colors" href="#">Settings</a>
 </nav>
 
 </div>
 </header>
 <main class="flex-1 flex flex-col max-w-[1440px] mx-auto w-full p-6 gap-6 overflow-hidden">
+    <!-- New Description Card -->
+    <div class="bg-white dark:bg-[#1a262e] rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm col-span-full">
+        <h3 class="text-lg font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-4">About FlipMyCoin</h3>
+        <p class="text-base text-slate-700 dark:text-slate-300">FlipMyCoin is a free online coin flip simulator powered by a fair and transparent random number algorithm. With a single click, you can instantly generate heads or tails results, while real-time statistics and cumulative history help demonstrate the reliability and randomness of each outcome.
+
+This tool is designed to assist with quick and unbiased decision-making in various scenarios, including games, everyday choices, team selections, and dispute resolution — offering a simple yet trustworthy digital alternative to physical coin tossing.</p>
+    </div>
     <div class="flex-1 flex flex-col md:flex-row gap-6"> <!-- New wrapper for existing horizontal layout -->
         <!-- Left Sidebar: Session Stats -->
 <aside class="hidden xl:flex flex-col w-72 gap-6">
@@ -169,7 +176,7 @@
     <div class="space-y-4">
         <div>
             <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Is this coin flip truly random?</p>
-            <p class="text-xs text-slate-600 dark:text-slate-400">Our online coin flip uses a pseudo-random number generator (PRNG) to simulate randomness. While PRNGs produce sequences that appear random and are suitable for most applications, they are not "unfortunately" random in a cryptographic sense because, given the seed, the sequence is predictable. However, for everyday use and fair simulations, it's generally considered unpredictable enough.</p>
+            <p class="text-xs text-slate-600 dark:text-slate-400">Our online coin flip uses a pseudo-random number generator (PRNG) to simulate randomness. While PRNGs produce sequences of numbers that appear random and are suitable for most applications, they are not "unfortunately" random in a cryptographic sense because, given the seed, the sequence is predictable. However, for everyday use and fair simulations, it's generally considered unpredictable enough.</p>
         </div>
         <div>
             <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Can I use this for decisions or games?</p>
@@ -285,4 +292,17 @@
     </div>
 </div>
 <script type="module" src="main.js"></script>
+<footer class="bg-white dark:bg-[#1a262e] border-t border-slate-200 dark:border-[#233948] mt-auto">
+    <div class="max-w-[1440px] mx-auto px-10 py-6">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="text-sm text-slate-500">&copy; 2026 CoinFlip Pro. All Rights Reserved.</p>
+            <nav class="flex gap-6">
+                <a class="text-sm text-slate-600 dark:text-white/80 hover:text-primary" href="about.html">About</a>
+                <a class="text-sm text-slate-600 dark:text-white/80 hover:text-primary" href="contact.html">Contact</a>
+                <a class="text-sm text-slate-600 dark:text-white/80 hover:text-primary" href="privacy.html">Privacy Policy</a>
+                <a class="text-sm text-slate-600 dark:text-white/80 hover:text-primary" href="terms.html">Terms of Service</a>
+            </nav>
+        </div>
+    </div>
+</footer>
 </body></html>

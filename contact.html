@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Contact Us - CoinFlip Pro</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1392ec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101a22",
+                    },
+                    fontFamily: { "display": ["Spline Sans", "sans-serif"] },
+                },
+            },
+        }
+    </script>
+    <link href="style.css" rel="stylesheet"/>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-[#233948] px-10 py-3 bg-white dark:bg-[#1a262e] sticky top-0 z-50">
+        <div class="flex items-center gap-4">
+            <div class="size-8 text-primary">
+                <svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <path clip-rule="evenodd" d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z" fill="currentColor" fill-rule="evenodd"></path>
+                </svg>
+            </div>
+            <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] font-display">CoinFlip Pro</h2>
+        </div>
+        <nav class="flex items-center gap-9">
+            <a class="text-slate-600 dark:text-white/80 hover:text-primary dark:hover:text-white text-sm font-medium" href="index.html">CoinFlip</a>
+            <a class="text-slate-600 dark:text-white/80 hover:text-primary dark:hover:text-white text-sm font-medium" href="SpinDecide.html">SpinDecide</a>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto w-full p-8 flex-1">
+        <article class="prose dark:prose-invert max-w-none">
+            <h1>Contact Us</h1>
+            
+            <p>We welcome your feedback, questions, and suggestions. If you have any inquiries about our Service or this website, please feel free to reach out to us.</p>
+
+            <h2>General Inquiries</h2>
+            <p>For all general questions, feedback on our tools, or suggestions for improvement, please email us at:</p>
+            <p><a href="mailto:contact@example.com" class="text-primary">kcheol85@gmail.com</a></p>
+            <p><em>(Please note: This is a placeholder email address.)</em></p>
+
+            <h2>Reporting Issues</h2>
+            <p>If you encounter any bugs or technical issues while using our tools, please let us know. Providing details such as the browser you are using and the steps to reproduce the issue will help us resolve it more quickly.</p>
+            
+            <p>We do our best to respond to all inquiries in a timely manner. Thank you for helping us improve CoinFlip Pro.</p>
+
+        </article>
+    </main>
+</body>
+</html>

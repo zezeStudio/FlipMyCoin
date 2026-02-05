@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Spin to Decide - CoinFlip Pro</title>
+    <title>Spin to Decide - Customizable Roulette Wheel | CoinFlip Pro</title>
+    <meta name="description" content="A free and customizable online roulette wheel. Spin the wheel to make random decisions for games, food choices, team selections, and more. Fair, transparent, and easy to use."/>
     <!-- Reusing existing project's CSS/JS for Tailwind and fonts -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
@@ -49,15 +50,20 @@
             <nav class="flex items-center gap-9">
                 <a id="spindecide-guide-nav-link" class="text-slate-600 dark:text-white/80 hover:text-primary dark:hover:text-white text-sm font-medium leading-normal transition-colors" href="#">SpinDecide guide</a>
                 <a class="text-slate-600 dark:text-white/80 hover:text-primary dark:hover:text-white text-sm font-medium leading-normal transition-colors" href="index.html">CoinFlip</a>
-                <a class="text-slate-600 dark:text-white/80 hover:text-primary dark:hover:text-white text-sm font-medium leading-normal transition-colors" href="#">Settings</a>
             </nav>
         </div>
     </header>
 
     <div class="max-w-[1600px] mx-auto w-full px-6 pt-8 pb-4 text-center">
+        <h2 class="text-4xl font-bold mb-4 text-slate-900 dark:text-white">SpinDecide — A Fair and Transparent Random Selection Tool</h2>
+        <p class="text-lg text-slate-700 dark:text-slate-300 font-medium mb-4">
+            SpinDecide is a browser-based roulette tool powered by a reliable random number generation system that fairly selects outcomes from your custom input options. With a simple spin, it produces unbiased random results designed to support both entertainment and practical decision-making.
+        </p>
+        <p class="text-lg text-slate-700 dark:text-slate-300 font-medium mb-4">
+            Beyond casual use, SpinDecide is ideal for team assignments, quick choices, random draws, classroom activities, and event selections. All results can be tracked and reviewed through built-in statistics, allowing users to observe outcome distribution and long-term randomness.
+        </p>
         <p class="text-lg text-slate-700 dark:text-slate-300 font-medium">
-            This roulette tool is a free online random selector designed to help make fair decisions in various situations requiring random selection.<br>
-            It can be freely used for various purposes such as food choices, team assignments, event draws, and learning activities.
+            This tool operates entirely on the client side using secure random algorithms (such as JavaScript’s built-in random functions), with no external server data transmission. It is designed to maximize transparency, speed, and fairness in every spin.
         </p>
     </div>
 
@@ -290,5 +296,18 @@
         </div>
     </section>
     <script type="module" src="SpinDecide.js"></script>
+<footer class="bg-white dark:bg-[#1a262e] border-t border-slate-200 dark:border-[#233948] mt-auto">
+    <div class="max-w-[1440px] mx-auto px-10 py-6">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="text-sm text-slate-500">&copy; 2026 CoinFlip Pro. All Rights Reserved.</p>
+            <nav class="flex gap-6">
+                <a class="text-sm text-slate-600 dark:text-white/80 hover:text-primary" href="about.html">About</a>
+                <a class="text-sm text-slate-600 dark:text-white/80 hover:text-primary" href="contact.html">Contact</a>
+                <a class="text-sm text-slate-600 dark:text-white/80 hover:text-primary" href="privacy.html">Privacy Policy</a>
+                <a class="text-sm text-slate-600 dark:text-white/80 hover:text-primary" href="terms.html">Terms of Service</a>
+            </nav>
+        </div>
+    </div>
+</footer>
 </body>
 </html>

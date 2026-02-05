@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>About Us - CoinFlip Pro</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1392ec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101a22",
+                    },
+                    fontFamily: { "display": ["Spline Sans", "sans-serif"] },
+                },
+            },
+        }
+    </script>
+    <link href="style.css" rel="stylesheet"/>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-[#233948] px-10 py-3 bg-white dark:bg-[#1a262e] sticky top-0 z-50">
+        <div class="flex items-center gap-4">
+            <div class="size-8 text-primary">
+                <svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <path clip-rule="evenodd" d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z" fill="currentColor" fill-rule="evenodd"></path>
+                </svg>
+            </div>
+            <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] font-display">CoinFlip Pro</h2>
+        </div>
+        <nav class="flex items-center gap-9">
+            <a class="text-slate-600 dark:text-white/80 hover:text-primary dark:hover:text-white text-sm font-medium" href="index.html">CoinFlip</a>
+            <a class="text-slate-600 dark:text-white/80 hover:text-primary dark:hover:text-white text-sm font-medium" href="SpinDecide.html">SpinDecide</a>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto w-full p-8 flex-1">
+        <article class="prose dark:prose-invert max-w-none">
+            <h1>About Us</h1>
+            
+            <p>CoinFlip Pro is a dedicated platform for providing simple, fast, and reliable random decision-making tools. Our mission is to offer high-quality, free-to-use digital utilities that bring fairness and fun to everyday choices.</p>
+
+            <h2>Our Philosophy</h2>
+            <p>In a world of complex algorithms and data-driven decisions, we believe in the power of simplicity. Sometimes, the best choice is a random one. Our tools are built on a foundation of transparency and user trust. We ensure that our random number generation is as fair as a real-world coin toss or wheel spin, without collecting any of your personal data.</p>
+            
+            <h2>Our Tools</h2>
+            <ul>
+                <li><strong>Coin Flip:</strong> A classic tool for when you have a 50/50 decision to make. It’s fast, simple, and provides real-time statistics to show its fairness over time.</li>
+                <li><strong>SpinDecide:</strong> A customizable roulette wheel for when you have multiple options. Perfect for everything from choosing a restaurant to assigning teams for a game.</li>
+            </ul>
+
+            <h2>Our Commitment to Quality</h2>
+            <p>We are committed to creating a high-quality user experience. This means:</p>
+            <ul>
+                <li><strong>No Clutter:</strong> Clean, intuitive interfaces that are easy to use.</li>
+                <li><strong>Performance:</strong> Fast-loading pages that work on any device.</li>
+                <li><strong>Transparency:</strong> Clear policies and client-side operations with no hidden data collection.</li>
+                <li><strong>Valuable Content:</strong> Providing not just tools, but also useful information and context around them.</li>
+            </ul>
+            <p>Thank you for using CoinFlip Pro. We hope our tools make your decisions a little bit easier and a lot more fun.</p>
+
+        </article>
+    </main>
+</body>
+</html>
