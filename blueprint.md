@@ -32,7 +32,7 @@ This document outlines the Spin to Decide feature within the CoinFlip Pro projec
 - **Update: Global `wheelItems` Synchronization:** The `wheelItems` global array is now explicitly updated with the latest entries by calling `wheelItems = getEntries();` at the end of the `updateEntriesTextarea()` function. This ensures that `wheelItems` always reflects the current state of the entries being displayed and used by the wheel.
 
 ### Bug Fix: Entry Truncation Reset
-- **Description:** Previously, when in "Ratio Free Mode" and exceeding the `MAX_ENTRIES` limit, an alert would appear. Upon dismissing this alert, the `entriesTextarea` content would unexpectedly reset (clear) instead of truncating to the allowed number of entries. This was due to an incorrect mapping operation when re-assigning the `entriesTextarea.value` after truncation.
+- **Description:** Previously, when in "Ratio Free Mode" and exceeding the `MAX_ENTRIES` limit, an alert would appear. Upon dismissing this alert, the `entriesTextarea` content would unexpectedly reset (clear) instead of truncating to the allowed number of entries. This was due to an incorrect mapping operation when re-assigning the `entriesTextarea.value`.
 - **Fix:** The logic in `SpinDecide.js`'s `entriesTextarea.addEventListener('input', ...)` was corrected. Instead of attempting to remap `truncatedEntries` (which are already raw strings) to preserve ratio information (which was causing `undefined` values), the `entriesTextarea.value` is now directly assigned `truncatedEntries.join('\n')`. This ensures that when entries exceed the limit, only the excess entries are removed, and the remaining valid entries (with their ratios) are correctly preserved and displayed.
 
 ### Bug Fix: Missing HTML Element ID (`ratio-free-desc`)
@@ -64,5 +64,25 @@ This document outlines the Spin to Decide feature within the CoinFlip Pro projec
     - **Smaller Delete Icon and Compact Spacing:** The delete button icon has been reduced to `text-xs` (even smaller) and its padding (`p-0.5`) and margin (`ml-1`) have been adjusted to be more compact and fit within the pill shape.
     - **`whitespace-nowrap` for Entry Text:** The `entryWrapper` includes `whitespace-nowrap` to prevent individual entry names from wrapping within their own pill-shaped container.
 
+### Control Buttons Functionality
+- **Volume Button Removal:** The volume button HTML element has been removed from `SpinDecide.html` as per user request.
+- **Fullscreen Button Implementation:**
+    - The fullscreen button (`id="fullscreen-button"`) in `SpinDecide.html` has been given an ID.
+    - JavaScript logic in `SpinDecide.js` now toggles the browser's fullscreen mode for the entire document when this button is clicked.
+- **Zoom Button Implementation:**
+    - The zoom button (`id="zoom-button"`) in `SpinDecide.html` has been given an ID.
+    - JavaScript logic in `SpinDecide.js` now toggles a `zoomed` CSS class on the `spinnerWheel` element when this button is clicked.
+    - Corresponding CSS for the `.zoomed` class has been added to `SpinDecide.css` to apply a `transform: scale(1.2)` effect, visually zooming the wheel.
+
+## Artifact Trail
+- **`SpinDecide.html`:** Volume button removed. `id="fullscreen-button"` and `id="zoom-button"` added to respective buttons.
+- **`SpinDecide.js`:**
+    - DOM element declarations for `fullscreenButton` and `zoomButton` added.
+    - `toggleFullScreen()` function added to handle fullscreen entry and exit.
+    - `toggleZoom()` function added to toggle the `zoomed` class on `spinnerWheel` and re-render the wheel.
+    - Event listeners added for `fullscreenButton` and `zoomButton`.
+- **`SpinDecide.css`:** Added `.zoomed` CSS class with `transform: scale(1.2)` and `transition` properties.
+
 ## Next Steps
-- User to verify the updated roulette wheel's appearance, including the new color scheme, font, and text layout. Pay close attention to how 'Ratio Free Mode' visually impacts the wheel slices.
+- User to verify the functionality of the fullscreen and zoom buttons.
+- User to verify the final state of the roulette wheel and overall application.
