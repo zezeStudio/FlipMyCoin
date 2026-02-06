@@ -116,13 +116,17 @@ This section outlines the SEO enhancements implemented across the CoinFlip Pro p
 - **Image `alt` Attributes Verified:** All `<img>` tags were confirmed to have descriptive `alt` attributes. Decorative images and background images via CSS were deemed appropriately handled without `alt` attributes where not applicable.
 - **Semantic HTML Structure Reviewed:** The page's semantic HTML structure, including `<header>`, `<main>`, `<footer>`, `<aside>`, `<h1>` to `<h3>` tags, was reviewed and found to be well-structured.
 - **Mobile-Friendly and Responsiveness Verified:** The page was confirmed to be mobile-friendly and responsive, primarily due to the correct `meta name="viewport"` setting and the extensive use of Tailwind CSS with responsive utility classes.
+- **Social Media Meta Tags Added:** Open Graph (`og:`) and Twitter Card (`twitter:`) meta tags were added to improve the appearance and content of shared links on social media platforms.
+- **Render-Blocking Resource Optimization:** The Tailwind CSS CDN script and Tailwind config script were moved from the `<head>` to just before the closing `</body>` tag, and the CDN script was updated with the `defer` attribute. The `style.css` content was inlined into a `<style>` block in the `<head>`.
 
 #### `SpinDecide.html` (Spin to Decide Roulette)
 - **Outdated Meta Keywords Removed:** The redundant and ineffective `<meta name="keywords"/>` tag was removed from the `<head>` section.
 - **JSON-LD Structured Data Added:** Comprehensive JSON-LD (schema.org) structured data was added to the `<head>` section, including `WebPage` and `SoftwareApplication` schemas. This provides search engines with detailed information about the roulette tool, its features, and user guide.
 - **Image `alt` Attributes Verified:** Absence of `<img>` tags was noted; SVG icons and decorative elements were considered appropriately handled without `alt` attributes where not applicable.
-- **Semantic HTML Structure Reviewed:** The page's semantic HTML structure, including `<header>`, `<main>`, `<footer>`, `<h2>` to `<h4>` tags, was reviewed and found to be well-structured.
+- **Semantic HTML Structure Reviewed:** The page's semantic HTML structure, including `<header>`, `<main>`, `<footer>`, `<h2>` to `#### `tags, was reviewed and found to be well-structured.
 - **Mobile-Friendly and Responsiveness Verified:** The page was confirmed to be mobile-friendly and responsive, primarily due to the correct `meta name="viewport"` setting and the use of Tailwind CSS with responsive utility classes.
+- **Social Media Meta Tags Added:** Open Graph (`og:`) and Twitter Card (`twitter:`) meta tags were added to improve the appearance and content of shared links on social media platforms.
+- **Render-Blocking Resource Optimization:** The Tailwind CSS CDN script and Tailwind config script were moved from the `<head>` to just before the closing `</body>` tag, and the CDN script was updated with the `defer` attribute. The `style.css` and `SpinDecide.css` content were inlined into a single `<style>` block in the `<head>`.
 
 #### `about.html` (About Us Page)
 - **Outdated Meta Keywords Removed:** The redundant and ineffective `<meta name="keywords"/>` tag was removed from the `<head>` section.
@@ -136,7 +140,7 @@ This section outlines the SEO enhancements implemented across the CoinFlip Pro p
 - **JSON-LD Structured Data Added:** Comprehensive JSON-LD (schema.org) structured data was added to the `<head>` section, including `WebPage` and `ContactPage` schemas. This provides search engines with information about the "Contact Us" page and the contact methods for CoinFlip Pro.
 - **Image `alt` Attributes Verified:** Absence of `<img>` tags was noted; SVG icons and decorative elements were considered appropriately handled without `alt` attributes where not applicable.
 - **Semantic HTML Structure Reviewed:** The page's semantic HTML structure, including `<h1>`, `<h2>`, `<p>`, `<main>`, `<header>`, and `<nav>`, was reviewed and found to be well-structured.
-- **Mobile-Friendliness and Responsiveness Verified:** The page was confirmed to be mobile-friendly and responsive, primarily due to the correct `meta name="viewport"` setting and the use of Tailwind CSS.
+- **Mobile-Friendly and Responsiveness Verified:** The page was confirmed to be mobile-friendly and responsive, primarily due to the correct `meta name="viewport"` setting and the use of Tailwind CSS.
 
 ### Domain Update
 - **New Domain Integration:** All instances of the previous domain (`https://flipmycoin.com`) were updated to the new deployment domain (`https://flipmycoin.pages.dev`). This includes:

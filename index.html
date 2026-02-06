@@ -6,6 +6,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Coin Flip Simulator - Fair & Transparent | CoinFlip Pro</title>
 <meta name="description" content="A free, fair, and transparent online coin flip simulator. Get instant heads or tails results with our random coin flipper, track statistics, and learn about probability. Perfect for games, decisions, and more."/>
+<link rel="canonical" href="https://flipmycoin.pages.dev/index.html"/>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -73,34 +74,139 @@
             y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
         })(window, document, "clarity", "script", "vcp8p17dyd");
     </script>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#1392ec",
-                        "background-light": "#f6f7f8",
-                        "background-dark": "#101a22",
-                    },
-                    fontFamily: {
-                        "display": ["Spline Sans", "sans-serif"]
-                    },
-                    borderRadius: {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                },
-            },
-        }
-    </script>
-<link href="style.css" rel="stylesheet"/>
+<style>
+body {
+    font-family: "Spline Sans", sans-serif;
+}
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* 3D Coin Flip Styles */
+.coin-flipper-container {
+    width: 100%; /* Take full width of parent w-[300px] */
+    height: 100%; /* Take full height of parent h-[300px] */
+    position: relative;
+    perspective: 1000px; /* For 3D effect */
+    display: flex; /* To center the coin-flipper */
+    align-items: center;
+    justify-content: center;
+}
+
+.coin-flipper {
+    /* width and height are set by size-96 class in HTML */
+    position: relative;
+    transform-style: preserve-3d; /* Keep children in 3D space */
+    border-radius: 9999px; /* Make it circular */
+    transform: rotateY(0deg); /* Initial state */
+    transition: transform 0.1s; /* Small transition for initial state changes */
+}
+
+.coin-face {
+    position: absolute;
+    width: 100%; /* Fill coin-flipper */
+    height: 100%; /* Fill coin-flipper */
+    backface-visibility: hidden; /* Hide the back of the element when facing away */
+    border-radius: 9999px; /* Make it circular */
+    background-size: cover; /* Cover the entire face area */
+    background-position: center;
+    background-repeat: no-repeat;
+    /* Optional: Add a slight border for coin thickness illusion */
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.coin-heads {
+    transform: rotateY(0deg);
+}
+
+.coin-tails {
+    transform: rotateY(180deg); /* Start with tails facing away */
+}
+
+/* Animation for flipping */
+@keyframes flip-animation-heads {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(1800deg); } /* Ends on 0 deg (heads up) */
+}
+@keyframes flip-animation-tails {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(1980deg); } /* Ends on 180 deg (tails up) */
+}
+
+.is-flipping-heads {
+    animation-name: flip-animation-heads;
+    animation-timing-function: ease-out;
+    animation-duration: var(--animation-duration); /* Use JS variable */
+    animation-fill-mode: forwards; /* Maintain final state */
+}
+.is-flipping-tails {
+    animation-name: flip-animation-tails;
+    animation-timing-function: ease-out;
+    animation-duration: var(--animation-duration); /* Use JS variable */
+    animation-fill-mode: forwards; /* Maintain final state */
+}
+
+/* Ensure no previous spin animations interfere */
+.spin-slow, .spin-medium, .spin-fast {
+    animation: none !important; /* Force disable previous animations */
+}
+
+/* Generic Toggle Switch Styles */
+.toggle-track {
+    transition: background-color 0.3s;
+}
+
+.toggle-switch-handle {
+    left: 0.2rem; /* Adjusted for better visual alignment with rounded edges */
+}
+
+.toggle-track[data-toggled="true"] {
+    background-color: #1392ec; /* primary color when toggled on */
+}
+
+.toggle-track[data-toggled="true"] .toggle-switch-handle {
+    transform: translateX(100%); /* Move to the right for on state */
+    background-color: white; /* Handle color when on */
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000; /* Ensure it's on top of everything */
+}
+
+.modal-content {
+    animation: fadeIn 0.3s ease-out forwards;
+    transform: scale(0.9);
+}
+
+.modal-overlay.hidden {
+    display: none;
+}
+
+/* Optional: Add a simple fade-in animation for the modal */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+</style>
 </head>
 <body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen flex flex-col">
 <!-- Top Navigation Bar -->
@@ -366,4 +472,32 @@ This tool is designed to assist with quick and unbiased decision-making in vario
         </div>
     </div>
 </footer>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries" defer></script>
+    
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries" defer></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1392ec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101a22",
+                    },
+                    fontFamily: {
+                        "display": ["Spline Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
 </body></html>
