@@ -93,7 +93,7 @@ This document outlines the Spin to Decide feature within the CoinFlip Pro projec
     - **HTML Updates:** `SpinDecide.html` includes a new history button and a history modal with a dropdown, stats display areas, and a reset button.
 
 ## Artifact Trail
-- **`SpinDecide.html`:** Volume button, fullscreen button, zoom button, the entire "Floating Controls" div, and the entire magnified segment modal HTML structure removed. New history button (`id="history-button"`) and history modal (`id="history-modal"`) with dropdown and stats display areas added. **The entire "Popular Wheels" section has been removed.** A new `reset-entries-button` has been added in the Secondary Actions section. An introductory text `div` (in English) has been added after the `</header>` tag. A "Usage Scenarios" `<section>` (in English) has been added at the bottom of the `<body>` element.
+- **`SpinDecide.html`:** Volume button, fullscreen button, zoom button, the entire "Floating Controls" div, and the entire magnified segment modal HTML structure removed. New history button (`id="history-button"`) and history modal (`id="history-modal"`) with dropdown and stats display areas added. **The entire "Popular Wheels" section has been removed.** A new `reset-entries-button` has been added in the Secondary Actions section. An introductory text `div` (in English) has been added after the `</header>` tag. A "Usage Scenarios" `<section>` (in English) has to be added at the bottom of the `<body>` element.
 - ****`SpinDecide.js`**: `lastWinningEntry` global variable, `toggleFullScreen()` function, `toggleZoom()` function, `drawMagnifiedSegment()` function, and all related DOM element declarations and event listeners for fullscreen and zoom removed. Added `rouletteHistory` variable, `getSetKey`, `populateHistoryDropdown`, `displayStatsForKey`, `resetSelectedStats` functions. Modified `spinWheel` to update `rouletteHistory`. Added `historyButton` event listener, `historyDropdown` change listener, and `statsResetButton` click listener. Removed `updateStatsUI` call from `syncTextareaWithWheelItems`. **All "Popular Wheels" related JavaScript code (DOM variable declarations, `popularWheels` data, `loadPresetWheel` function, and associated event listeners) has to be removed.** Declared `resetEntriesButton` DOM element, implemented `resetEntries()` function, and added event listener for `resetEntriesButton`.
 - **`SpinDecide.css`:** All CSS rules related to `.zoomed` and the magnified segment modal (`#magnified-segment-modal`, `#magnified-segment-content`, `#magnified-segment-canvas`, `.close-button` within the modal) removed.
 
@@ -107,6 +107,8 @@ This section outlines the SEO enhancements implemented across the CoinFlip Pro p
 - **`robots.txt` Creation:** A `robots.txt` file was created at the project root to guide search engine crawlers, allowing full access to the site while specifying the sitemap location.
 - **`sitemap.xml` Generation:** A comprehensive `sitemap.xml` file was generated to help search engines discover all publicly accessible HTML pages (`index.html`, `SpinDecide.html`, `about.html`, `contact.html`, `privacy.html`, `terms.html`), including `lastmod` dates and `priority`/`changefreq` attributes.
 - **`lang` Attribute Verification:** The `lang="en"` attribute was confirmed to be present and correctly specified in the `<html>` tag of all HTML files (`index.html`, `SpinDecide.html`, `about.html`, `contact.html`, `privacy.html`, `terms.html`) for proper language indication.
+- **URL Canonicalization:** `<link rel="canonical">` tags were added to the `<head>` section of all HTML pages (`index.html`, `SpinDecide.html`, `about.html`, `contact.html`, `privacy.html`, `terms.html`) to explicitly specify the preferred URL, addressing canonicalization issues.
+- **Custom 404 Error Page:** A `404.html` page was created with a friendly message and navigation links to improve user experience for broken links.
 
 ### Page-Specific Enhancements
 
@@ -147,3 +149,35 @@ This section outlines the SEO enhancements implemented across the CoinFlip Pro p
     - The `Sitemap` URL in `robots.txt`.
     - All `<loc>` URLs within `sitemap.xml`.
     - All `url` properties within the JSON-LD structured data for `index.html`, `SpinDecide.html`, `about.html`, and `contact.html`.
+
+### GEO-Optimization Enhancements (생성형 AI 검색 최적화)
+
+새로운 GEO 최적화 요구 사항을 기반으로 다음 개선 사항을 적용했습니다:
+
+- **콘텐츠 재작성 (대화형 및 사용자 중심):**
+    - `index.html` (Coin Flip Simulator): "About FlipMyCoin" 섹션과 "Coin Flip Insights" 섹션의 텍스트를 검토했습니다. 생성형 AI가 사용자 질문에 더 자연스럽게 응답할 수 있도록, 도구의 사용 사례("누가, 언제, 어떻게" 사용하는지)에 초점을 맞춰 대화형으로 내용을 개선했습니다.
+    - `SpinDecide.html` (Spin to Decide Roulette): 주요 설명 텍스트를 검토하여 AI가 도구의 목적과 활용법을 더 쉽게 이해하고 추천할 수 있도록 대화형으로 개선했습니다.
+
+- **콘텐츠 구조 및 가독성 확인:**
+    - `index.html` 및 `SpinDecide.html`의 기존 제목 구조(H1, H2, H3)와 콘텐츠 서식(목록, 단락)이 AI 가독성과 논리적 흐름을 위해 잘 최적화되어 있음을 확인했습니다.
+
+- **신뢰성 및 권위 신호 (AI 이해를 위해):**
+    - `about.html` 및 `privacy.html`의 내용을 검토하여 사이트의 목적, 공정성, 데이터 처리 방식 등이 명확하게 전달되는지 확인했습니다. AI가 브랜드 신뢰도를 평가하는 데 긍정적인 요소로 작용합니다.
+
+- **구조화된 데이터 강화:**
+    - `index.html` 및 `SpinDecide.html`의 기존 JSON-LD 구조화된 데이터를 검토하여 도구의 관련 대화 요소 및 사용 사례를 충분히 캡처하도록 확인했습니다. (새로운 스키마 추가보다 기존 스키마 내용 강화에 중점).
+
+- **사용자 경험 (UX) 기반:**
+    - 모바일 친화성 및 로딩 속도에 대한 회귀가 발생하지 않았음을 확인했습니다.
+
+### 현재 제한 사항 및 사용자 조치 필요 사항
+
+다음 항목들은 현재 환경 및 도구의 제한으로 인해 직접적인 코드 수정이 어렵거나 사용자님의 추가 조치가 필요한 사항입니다:
+
+- **Chrome 개발자 도구 콘솔 오류:** 저는 브라우저와 직접 상호 작용할 수 없으므로 콘솔 오류를 직접 확인하고 해결할 수 없습니다. 웹사이트를 Chrome 브라우저에서 열고 개발자 도구(F12)의 'Console' 탭을 확인해 주십시오. 여기에 오류 메시지가 표시되면 저에게 알려주시면 해결을 위한 지침을 드릴 수 있습니다.
+
+- **SPF 레코드:** SPF 레코드는 도메인의 DNS 설정에 추가해야 하는 TXT 레코드입니다. 저는 DNS 설정에 접근할 수 없기 때문에 이 작업을 직접 수행할 수 없습니다. 도메인 호스팅 제공업체의 관리 패널에서 SPF 레코드를 추가하도록 안내해 드릴 수 있습니다. 일반적으로 다음과 같은 형식의 레코드를 추가해야 합니다 (여기서 `your_mail_server.com`은 실제 메일 서버 주소로 대체해야 합니다): `v=spf1 include:your_mail_server.com ~all`. 이는 이메일 스푸핑을 방지하고 이메일 전달률을 높이는 데 매우 중요합니다.
+
+- **Strict-Transport-Security (HSTS) 헤더:** Strict-Transport-Security (HSTS) 헤더는 서버에서 응답 헤더로 설정해야 합니다. `pages.dev`와 같은 정적 호스팅 환경에서는 일반적으로 `.htaccess` 파일이나 서버 설정 파일에 접근하여 이 헤더를 직접 추가할 수 없습니다. Cloudflare Pages (pages.dev의 기반)는 기본적으로 HTTPS를 사용하지만, HSTS 헤더를 직접 추가하는 기능은 플랫폼의 제약으로 인해 제한될 수 있습니다. 이 부분은 `pages.dev` 플랫폼의 기능과 한계에 따라 다릅니다.
+
+- **HTTP 요청 수 최적화:** 렌더링 차단 리소스 제거를 통해 `index.html`과 `SpinDecide.html`에서 CSS 파일을 인라인하고 JavaScript 로딩 방식을 `defer`로 변경함으로써 초기 로드 시 발생하는 HTTP 요청 수가 줄어들었을 것입니다. 더 이상의 최적화는 이미지 최적화 (WebP 형식 사용, 지연 로딩) 또는 번들링/압축과 같은 추가적인 빌드 프로세스를 통해 가능하지만, 현재 프로젝트 설정에서는 복잡도가 증가합니다.
