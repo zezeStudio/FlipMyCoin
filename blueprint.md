@@ -66,7 +66,7 @@ This document outlines the Spin to Decide feature within the CoinFlip Pro projec
     - **Container as Flex-Wrap:** `singleEntryListContainer` now has `flex`, `flex-wrap`, `gap-2`, and `mt-2` classes to enable horizontal flow with spacing and wrapping.
     - **Pill-Shaped Entry Wrapper:** Each individual entry is enclosed in a new `div` (`entryWrapper`) with `flex`, `items-center`, `rounded-full`, `px-2`, `py-0.5` classes, giving it a pill-shaped appearance with more compact padding.
     - **Smaller Entry Text Font:** The `entryWrapper` now applies `text-sm` to make the entry name text smaller.
-    - **Smaller Delete Icon and Compact Spacing:** The delete button icon has been reduced to `text-xs` (even smaller) and its padding (`p-0.5`) and margin (`ml-1`) have been adjusted to be more compact and fit within the pill shape.
+    - **Smaller Delete Icon and Compact Spacing:** The delete button icon has been reduced to `text-xs` (even smaller) and its padding (`p-0.5`) and margin (`ml-1`) has been adjusted to be more compact and fit within the pill shape.
     - **`whitespace-nowrap` for Entry Text:** The `entryWrapper` includes `whitespace-nowrap` to prevent individual entry names from wrapping within their own pill-shaped container.
 
 ### Control Buttons Functionality
@@ -94,8 +94,52 @@ This document outlines the Spin to Decide feature within the CoinFlip Pro projec
 
 ## Artifact Trail
 - **`SpinDecide.html`:** Volume button, fullscreen button, zoom button, the entire "Floating Controls" div, and the entire magnified segment modal HTML structure removed. New history button (`id="history-button"`) and history modal (`id="history-modal"`) with dropdown and stats display areas added. **The entire "Popular Wheels" section has been removed.** A new `reset-entries-button` has been added in the Secondary Actions section. An introductory text `div` (in English) has been added after the `</header>` tag. A "Usage Scenarios" `<section>` (in English) has been added at the bottom of the `<body>` element.
-- ****`SpinDecide.js`**: `lastWinningEntry` global variable, `toggleFullScreen()` function, `toggleZoom()` function, `drawMagnifiedSegment()` function, and all related DOM element declarations and event listeners for fullscreen and zoom removed. Added `rouletteHistory` variable, `getSetKey`, `populateHistoryDropdown`, `displayStatsForKey`, `resetSelectedStats` functions. Modified `spinWheel` to update `rouletteHistory`. Added `historyButton` event listener, `historyDropdown` change listener, and `statsResetButton` click listener. Removed `updateStatsUI` call from `syncTextareaWithWheelItems`. **All "Popular Wheels" related JavaScript code (DOM variable declarations, `popularWheels` data, `loadPresetWheel` function, and associated event listeners) has been removed.** Declared `resetEntriesButton` DOM element, implemented `resetEntries()` function, and added event listener for `resetEntriesButton`.
+- ****`SpinDecide.js`**: `lastWinningEntry` global variable, `toggleFullScreen()` function, `toggleZoom()` function, `drawMagnifiedSegment()` function, and all related DOM element declarations and event listeners for fullscreen and zoom removed. Added `rouletteHistory` variable, `getSetKey`, `populateHistoryDropdown`, `displayStatsForKey`, `resetSelectedStats` functions. Modified `spinWheel` to update `rouletteHistory`. Added `historyButton` event listener, `historyDropdown` change listener, and `statsResetButton` click listener. Removed `updateStatsUI` call from `syncTextareaWithWheelItems`. **All "Popular Wheels" related JavaScript code (DOM variable declarations, `popularWheels` data, `loadPresetWheel` function, and associated event listeners) has to be removed.** Declared `resetEntriesButton` DOM element, implemented `resetEntries()` function, and added event listener for `resetEntriesButton`.
 - **`SpinDecide.css`:** All CSS rules related to `.zoomed` and the magnified segment modal (`#magnified-segment-modal`, `#magnified-segment-content`, `#magnified-segment-canvas`, `.close-button` within the modal) removed.
 
 ## Next Steps
 - **All tasks completed.** The SpinDecide application has been fully implemented with custom entries, ratio support, a canvas-based rendering engine, history and statistics tracking, and a reset entries button. All requested features have been integrated, and the application is stable.
+## SEO Enhancements
+
+This section outlines the SEO enhancements implemented across the CoinFlip Pro project to improve search engine visibility and understanding, adhering to modern SEO best practices.
+
+### General Site-wide Enhancements
+- **`robots.txt` Creation:** A `robots.txt` file was created at the project root to guide search engine crawlers, allowing full access to the site while specifying the sitemap location.
+- **`sitemap.xml` Generation:** A comprehensive `sitemap.xml` file was generated to help search engines discover all publicly accessible HTML pages (`index.html`, `SpinDecide.html`, `about.html`, `contact.html`, `privacy.html`, `terms.html`), including `lastmod` dates and `priority`/`changefreq` attributes.
+- **`lang` Attribute Verification:** The `lang="en"` attribute was confirmed to be present and correctly specified in the `<html>` tag of all HTML files (`index.html`, `SpinDecide.html`, `about.html`, `contact.html`, `privacy.html`, `terms.html`) for proper language indication.
+
+### Page-Specific Enhancements
+
+#### `index.html` (Coin Flip Simulator)
+- **Outdated Meta Keywords Removed:** The redundant and ineffective `<meta name="keywords"/>` tags were removed from the `<head>` section.
+- **JSON-LD Structured Data Added:** Comprehensive JSON-LD (schema.org) structured data was added to the `<head>` section, including `WebPage` and `SoftwareApplication` schemas. This provides search engines with detailed information about the page content, application name, description, operating system, category, pricing, ratings, features, and relevant URLs.
+- **Image `alt` Attributes Verified:** All `<img>` tags were confirmed to have descriptive `alt` attributes. Decorative images and background images via CSS were deemed appropriately handled without `alt` attributes where not applicable.
+- **Semantic HTML Structure Reviewed:** The page's semantic HTML structure, including `<header>`, `<main>`, `<footer>`, `<aside>`, `<h1>` to `<h3>` tags, was reviewed and found to be well-structured.
+- **Mobile-Friendly and Responsiveness Verified:** The page was confirmed to be mobile-friendly and responsive, primarily due to the correct `meta name="viewport"` setting and the extensive use of Tailwind CSS with responsive utility classes.
+
+#### `SpinDecide.html` (Spin to Decide Roulette)
+- **Outdated Meta Keywords Removed:** The redundant and ineffective `<meta name="keywords"/>` tag was removed from the `<head>` section.
+- **JSON-LD Structured Data Added:** Comprehensive JSON-LD (schema.org) structured data was added to the `<head>` section, including `WebPage` and `SoftwareApplication` schemas. This provides search engines with detailed information about the roulette tool, its features, and user guide.
+- **Image `alt` Attributes Verified:** Absence of `<img>` tags was noted; SVG icons and decorative elements were considered appropriately handled without `alt` attributes where not applicable.
+- **Semantic HTML Structure Reviewed:** The page's semantic HTML structure, including `<header>`, `<main>`, `<footer>`, `<h2>` to `<h4>` tags, was reviewed and found to be well-structured.
+- **Mobile-Friendly and Responsiveness Verified:** The page was confirmed to be mobile-friendly and responsive, primarily due to the correct `meta name="viewport"` setting and the use of Tailwind CSS with responsive utility classes.
+
+#### `about.html` (About Us Page)
+- **Outdated Meta Keywords Removed:** The redundant and ineffective `<meta name="keywords"/>` tag was removed from the `<head>` section.
+- **JSON-LD Structured Data Added:** Comprehensive JSON-LD (schema.org) structured data was added to the `<head>` section, including `WebPage` and `Organization` schemas. This provides search engines with information about the "About Us" page and the CoinFlip Pro organization itself.
+- **Image `alt` Attributes Verified:** Absence of `<img>` tags was noted; SVG icons and decorative elements were considered appropriately handled without `alt` attributes where not applicable.
+- **Semantic HTML Structure Reviewed:** The page's semantic HTML structure, including `<h1>`, `<h2>`, `<p>`, `<ul>`, `<li>`, `<main>`, `<header>`, and `<nav>`, was reviewed and found to be well-structured.
+- **Mobile-Friendly and Responsiveness Verified:** The page was confirmed to be mobile-friendly and responsive, primarily due to the correct `meta name="viewport"` setting and the use of Tailwind CSS.
+
+#### `contact.html` (Contact Us Page)
+- **Outdated Meta Keywords Removed:** The redundant and ineffective `<meta name="keywords"/>` tag was removed from the `<head>` section.
+- **JSON-LD Structured Data Added:** Comprehensive JSON-LD (schema.org) structured data was added to the `<head>` section, including `WebPage` and `ContactPage` schemas. This provides search engines with information about the "Contact Us" page and the contact methods for CoinFlip Pro.
+- **Image `alt` Attributes Verified:** Absence of `<img>` tags was noted; SVG icons and decorative elements were considered appropriately handled without `alt` attributes where not applicable.
+- **Semantic HTML Structure Reviewed:** The page's semantic HTML structure, including `<h1>`, `<h2>`, `<p>`, `<main>`, `<header>`, and `<nav>`, was reviewed and found to be well-structured.
+- **Mobile-Friendliness and Responsiveness Verified:** The page was confirmed to be mobile-friendly and responsive, primarily due to the correct `meta name="viewport"` setting and the use of Tailwind CSS.
+
+### Domain Update
+- **New Domain Integration:** All instances of the previous domain (`https://flipmycoin.com`) were updated to the new deployment domain (`https://flipmycoin.pages.dev`). This includes:
+    - The `Sitemap` URL in `robots.txt`.
+    - All `<loc>` URLs within `sitemap.xml`.
+    - All `url` properties within the JSON-LD structured data for `index.html`, `SpinDecide.html`, `about.html`, and `contact.html`.
