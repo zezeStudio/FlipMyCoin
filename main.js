@@ -1,4 +1,5 @@
 import { initCoinFlip, triggerCoinFlip } from './coinFlip.js';
+import { translations } from './translations.js';
 
 let isFastModeEnabled = false; // Fast Mode 기본값은 off
 let isAutoflipEnabled = (localStorage.getItem('isAutoflipEnabled') === 'true'); // Load from localStorage, ensures off by default
@@ -8,6 +9,25 @@ const autoflipIntervalDuration = 10000; // 10 seconds
 export function getIsFastModeEnabled() {
     return isFastModeEnabled;
 }
+
+// Function to apply translations
+const applyTranslations = (lang) => {
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+            element.textContent = translations[lang][key];
+        }
+    });
+    // Update the title and meta description if present in translations
+    if (translations[lang] && translations[lang]['title']) {
+        document.title = translations[lang]['title'];
+    }
+    if (translations[lang] && translations[lang]['meta_description']) {
+        document.querySelector('meta[name="description"]').setAttribute('content', translations[lang]['meta_description']);
+    }
+    document.documentElement.lang = lang; // Update HTML lang attribute
+};
+
 
 function setupFastModeToggle() {
     const fastModeToggleButton = document.getElementById('fast-mode-toggle');
@@ -64,6 +84,24 @@ function setupAutoflipToggle() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize language
+    const storedLang = localStorage.getItem('selectedLanguage') || 'en'; // Default to English
+    const languageSelector = document.getElementById('language-selector');
+    
+    if (languageSelector) {
+        languageSelector.value = storedLang;
+        applyTranslations(storedLang);
+    }
+
+    // Handle language change
+    if (languageSelector) {
+        languageSelector.addEventListener('change', (event) => {
+            const newLang = event.target.value;
+            localStorage.setItem('selectedLanguage', newLang);
+            applyTranslations(newLang);
+        });
+    }
+
     setupFastModeToggle();
     setupAutoflipToggle(); // Setup autoflip toggle
     initCoinFlip(getIsFastModeEnabled);

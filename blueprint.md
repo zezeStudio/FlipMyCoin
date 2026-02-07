@@ -119,7 +119,7 @@ This section outlines the SEO enhancements implemented across the CoinFlip Pro p
 - **Semantic HTML Structure Reviewed:** The page's semantic HTML structure, including `<header>`, `<main>`, `<footer>`, `<aside>`, `<h1>` to `<h3>` tags, was reviewed and found to be well-structured.
 - **Mobile-Friendly and Responsiveness Verified:** The page was confirmed to be mobile-friendly and responsive, primarily due to the correct `meta name="viewport"` setting and the extensive use of Tailwind CSS with responsive utility classes.
 - **Social Media Meta Tags Added:** Open Graph (`og:`) and Twitter Card (`twitter:`) meta tags were added to improve the appearance and content of shared links on social media platforms.
-- **Render-Blocking Resource Optimization:** The Tailwind CSS CDN script and Tailwind config script were moved from the `<head>` to just before the closing `</body>` tag, and the CDN script was updated with the `defer` attribute. The `style.css` content was inlined into a `<style>` block in the `<head>`.
+- **Render-Blocking Resource Optimization:** The Tailwind CSS CDN script and Tailwind config script were removed from `index.html`. The locally built `dist/output.css` and `style.css` are now linked in the `<head>` section.
 - **Performance Optimization (Google Fonts Preload):** Added `<link rel="preload" as="style">` for Google Fonts stylesheets to prompt earlier fetching of critical font resources, aiming to reduce perceived loading time.
 
 #### `SpinDecide.html` (Spin to Decide Roulette)
